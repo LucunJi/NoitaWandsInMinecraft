@@ -1,9 +1,7 @@
 package io.github.lucunji.noitacraft.client.screen;
 
-import io.github.lucunji.noitacraft.container.WandContainer;
-import net.minecraft.client.gui.IHasContainer;
+import io.github.lucunji.noitacraft.inventory.container.WandContainer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
-import net.minecraft.client.renderer.model.ItemCameraTransforms;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraftforge.api.distmarker.Dist;
@@ -19,6 +17,7 @@ public class WandScreen extends ContainerScreen<WandContainer> {
     public void render(int mouseX, int mouseY, float partialTicks) {
         renderBackground();
         super.render(mouseX, mouseY, partialTicks);
+        renderHoveredToolTip(mouseX, mouseY);
     }
 
     @Override

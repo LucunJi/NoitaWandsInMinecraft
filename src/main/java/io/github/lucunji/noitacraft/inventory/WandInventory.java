@@ -1,4 +1,4 @@
-package io.github.lucunji.noitacraft.container.inventory;
+package io.github.lucunji.noitacraft.inventory;
 
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.ItemStackHelper;
@@ -31,6 +31,17 @@ public class WandInventory extends Inventory {
             for (int i = 0; i < this.getSizeInventory(); ++i) {
                 setInventorySlotContents(i, list.get(i));
             }
+        }
+    }
+
+        public void writeToStack() {
+        if (wandItemStack.hasTag()) {
+            final NonNullList<ItemStack> list = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
+            for (int i = 0; i < this.getSizeInventory(); ++i) {
+                list.set(i, this.getStackInSlot(i));
+            }
+            CompoundNBT spellCompound = wandItemStack.getTag().getCompound("Wand").getCompound("Spells");
+            ItemStackHelper.saveAllItems(spellCompound, list, true);
         }
     }
 }

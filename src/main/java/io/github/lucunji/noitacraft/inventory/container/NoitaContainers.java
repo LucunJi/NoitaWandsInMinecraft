@@ -1,9 +1,7 @@
-package io.github.lucunji.noitacraft.container;
+package io.github.lucunji.noitacraft.inventory.container;
 
 import io.github.lucunji.noitacraft.NoitaCraft;
-import io.github.lucunji.noitacraft.container.inventory.WandInventory;
 import net.minecraft.inventory.container.ContainerType;
-import net.minecraft.item.ItemStack;
 import net.minecraftforge.common.extensions.IForgeContainerType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
