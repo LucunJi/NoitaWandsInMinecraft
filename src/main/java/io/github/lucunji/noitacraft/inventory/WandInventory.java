@@ -16,8 +16,8 @@ public class WandInventory extends Inventory {
     }
 
     private static int getCount(ItemStack wandItemStack) {
-        if (wandItemStack.hasTag()) {
-            return wandItemStack.getTag().getCompound("Wand").getByte("Size");
+        if (wandItemStack.hasTag() && wandItemStack.getTag().contains("Wand") && wandItemStack.getTag().getCompound("Wand").contains("Capacity")) {
+            return wandItemStack.getTag().getCompound("Wand").getByte("Capacity");
         } else {
             return 0;
         }

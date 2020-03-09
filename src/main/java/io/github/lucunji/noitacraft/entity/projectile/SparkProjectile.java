@@ -27,7 +27,7 @@ public class SparkProjectile extends Entity implements IProjectile {
     private LivingEntity caster;
     private boolean inGround;
     private int age;
-    private static final int expireAge = 15;
+    private static final int expireAge = 13;
     private static final double gravity = 0.01;
 
     public SparkProjectile(EntityType<SparkProjectile> type, World worldIn) {
@@ -166,7 +166,9 @@ public class SparkProjectile extends Entity implements IProjectile {
 
                 motionScale = this.getWaterDrag();
             }
-            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_SPARK_BOLT)), this.getPosXRandom(0.5D), this.getPosYRandom(), this.getPosZRandom(0.5D), 0, 0, 0);
+            for (int i = 0; i < 5; i++) {
+                this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_SPARK_BOLT)), this.getPosXRandom(0.5D), this.getPosYRandom(), this.getPosZRandom(0.5D), 0, 0, 0);
+            }
 
             motionVec = motionVec.scale(motionScale);
             this.setMotion(motionVec.x, motionVec.getY() - gravity, motionVec.getZ());

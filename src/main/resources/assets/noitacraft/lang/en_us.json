@@ -1,11 +1,17 @@
 {
   "itemGroup.noitacraft": "Noita Craft",
 
-  "_comment": "PROPERTIES",
-  "desc.noitacraft.spell.mana_drain": "§6Mana drain: §r",
-  "desc.noitacraft.spell.cast_delay": "§6ast delay: §r",
-  "desc.noitacraft.spell.recharge_time": "§6Recharge time: §r",
-  "desc.noitacraft.spell.uses_remain": "§6Uses Remain: §r",
+  "_comment": "WAND PROPERTIES",
+  "item.noitacraft.wand": "§bWand§r",
+  "desc.noitacraft.wand.shuffle": "§6Shuffle: §r%s",
+  "desc.noitacraft.wand.casts": "§6Casts: §r%d",
+  "desc.noitacraft.wand.cast_delay": "§6Cast delay: §r%f",
+  "desc.noitacraft.wand.recharge_time": "§6Recharge time: §r%f",
+  "desc.noitacraft.wand.mana_max": "§6Mana max: §r%d",
+  "desc.noitacraft.wand.mana_charge_speed": "§6Mana charge speed: §r%d",
+  "desc.noitacraft.wand.capacity": "§6Capacity: §r%d",
+  "desc.noitacraft.wand.spread": "§6Spread: §r%f",
+  "desc.noitacraft.wand.uninitialized": "§cUninitialized§r",
 
   "_comment": "SPELLS",
   "item.noitacraft.spell_energy_sphere": "§bEnergy Sphere§r",
@@ -13,5 +19,11 @@
   "item.noitacraft.spell_spark_bolt": "§bSpark Bolt§r",
   "item.noitacraft.spell_spark_bolt.detail": "§oA weak but enchanting sparkling projectile§r",
   "item.noitacraft.spell_bomb": "§bBomb§r",
-  "item.noitacraft.spell_bomb.detail": "§oSummon a bomb that destroys ground very efficiently§r"
+  "item.noitacraft.spell_bomb.detail": "§oSummon a bomb that destroys ground very efficiently§r",
+
+  "_comment": "SPELL PROPERTIES",
+  "desc.noitacraft.spell.mana_drain": "§6Mana drain: §r%d",
+  "desc.noitacraft.spell.cast_delay": "§6Cast delay: §r%f",
+  "desc.noitacraft.spell.recharge_time": "§6Recharge time: §r%f",
+  "desc.noitacraft.spell.uses_remain": "§6Uses Remain: §r%d"
 }

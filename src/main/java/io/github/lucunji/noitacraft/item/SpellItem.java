@@ -1,6 +1,5 @@
 package io.github.lucunji.noitacraft.item;
 
-import io.github.lucunji.noitacraft.spell.ProjectileSpell;
 import io.github.lucunji.noitacraft.spell.SpellAbstract;
 import io.github.lucunji.noitacraft.spell.StaticSpell;
 import net.minecraft.client.util.ITooltipFlag;
@@ -26,15 +25,11 @@ public class SpellItem extends BaseItem {
     @Override
     public void addInformation(ItemStack stack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         tooltip.add(new TranslationTextComponent(this.getTranslationKey() + ".detail"));
-        tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.mana_drain").appendText(spell.manaDrain + ""));
-        tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.cast_delay").appendText((spell.castDelay/20f) + "s"));
-        tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.recharge_time").appendText((spell.rechargeTime/20f) + "s"));
-//        if (spell instanceof ProjectileSpell) {
-//            ProjectileSpell projectileSpell = ((ProjectileSpell) spell);
-//            tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.recharge_time").appendText(spell.rechargeTime + ""));
-//        }
+        tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.mana_drain", spell.manaDrain));
+        tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.cast_delay", spell.castDelay / 20.0));
+        tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.recharge_time", spell.rechargeTime / 20.0));
         if (spell instanceof StaticSpell && ((StaticSpell) spell).uses > -1) {
-            tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.uses_remain").appendText(stack.getDamage() + ""));
+            tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.uses_remain", stack.getDamage()));
         }
     }
 }
