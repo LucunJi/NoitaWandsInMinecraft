@@ -1,6 +1,6 @@
 package io.github.lucunji.noitacraft.spell;
 
-public class StaticSpell extends SpellAbstract {
+public class StaticSpell extends SpellBase {
     public final int uses;
 
     public StaticSpell(int manaDrain, int castDelay) {

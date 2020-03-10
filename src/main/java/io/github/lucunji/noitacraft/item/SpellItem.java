@@ -1,6 +1,6 @@
 package io.github.lucunji.noitacraft.item;
 
-import io.github.lucunji.noitacraft.spell.SpellAbstract;
+import io.github.lucunji.noitacraft.spell.SpellBase;
 import io.github.lucunji.noitacraft.spell.StaticSpell;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -14,9 +14,9 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public class SpellItem extends BaseItem {
-    protected final SpellAbstract spell;
+    protected final SpellBase spell;
 
-    public SpellItem(Properties properties, SpellAbstract spell) {
+    public SpellItem(Properties properties, SpellBase spell) {
         super(properties.maxStackSize(1));
         this.spell = spell;
     }
@@ -31,5 +31,9 @@ public class SpellItem extends BaseItem {
         if (spell instanceof StaticSpell && ((StaticSpell) spell).uses > -1) {
             tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.uses_remain", stack.getDamage()));
         }
+    }
+
+    public SpellBase getSpell() {
+        return spell;
     }
 }

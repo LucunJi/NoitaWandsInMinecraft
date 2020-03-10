@@ -1,9 +1,8 @@
 package io.github.lucunji.noitacraft.item;
 
 import io.github.lucunji.noitacraft.NoitaCraft;
-import io.github.lucunji.noitacraft.spell.DamageCollection;
+import io.github.lucunji.noitacraft.item.wand.WandItem;
 import io.github.lucunji.noitacraft.spell.NoitaSpells;
-import io.github.lucunji.noitacraft.spell.ProjectileSpell;
 import net.minecraft.item.Item;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;

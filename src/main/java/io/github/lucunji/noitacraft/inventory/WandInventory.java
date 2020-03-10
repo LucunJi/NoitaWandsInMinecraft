@@ -34,14 +34,24 @@ public class WandInventory extends Inventory {
         }
     }
 
-        public void writeToStack() {
+    public void writeToStack() {
+        CompoundNBT tag = wandItemStack.getTag();
+        if (tag == null) {
+            tag = new CompoundNBT();
+            wandItemStack.setTag(tag);
+        }
+        CompoundNBT wandNBT = new CompoundNBT();
+        if (tag.contains("Wand")) {
+            wandNBT = tag.getCompound("Wand");
+            tag.put("Wand", wandNBT);
+        }
+        if (!wandNBT.contains("Spells")) wandNBT.put("Spells", new CompoundNBT());
         if (wandItemStack.hasTag()) {
             final NonNullList<ItemStack> list = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
             for (int i = 0; i < this.getSizeInventory(); ++i) {
                 list.set(i, this.getStackInSlot(i));
             }
-            CompoundNBT spellCompound = wandItemStack.getTag().getCompound("Wand").getCompound("Spells");
-            ItemStackHelper.saveAllItems(spellCompound, list, true);
+            ItemStackHelper.saveAllItems(wandNBT.getCompound("Spells"), list, true);
         }
     }
 }

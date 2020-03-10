@@ -1,26 +1,31 @@
-package io.github.lucunji.noitacraft.item;
+package io.github.lucunji.noitacraft.item.wand;
 
+import io.github.lucunji.noitacraft.inventory.WandInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.NBTTypes;
 import net.minecraft.util.math.MathHelper;
 
 import java.util.Random;
 
 public class WandProperty {
-    private boolean isShuffle;
-    private byte casts;
-    private int castDelay;
-    private int rechargeTime;
-    private int manaMax;
-    private int manaChargeSpeed;
-    private byte capacity;
-    private float spread;
+    protected boolean isShuffle;
+    protected byte casts;
+    protected int castDelay;
+    protected int rechargeTime;
+    protected int manaMax;
+    protected int manaChargeSpeed;
+    protected byte capacity;
+    protected float spread;
 
-    private int mana;
-    private int numberCasted;
+    protected int cooldown;
+    protected int mana;
+    protected int numberCasted;
 
-    private WandProperty(Random random) {
+    private final ItemStack wandStack;
+
+    private WandProperty(ItemStack wandStack, Random random) {
+        this.wandStack = wandStack;
+
         this.isShuffle = random.nextBoolean();
         this.casts = (byte) random.nextInt(6);
         this.castDelay = (int)Math.max(0.0, random.nextGaussian() * 20 * (isShuffle? 1 : 2));
@@ -30,6 +35,7 @@ public class WandProperty {
         this.capacity = (byte) MathHelper.clamp(random.nextGaussian() * (isShuffle? 1.5 : 2.5) + (isShuffle? 3 : 8), 1, 16);
         this.spread = (float)MathHelper.clamp(random.nextGaussian() - (isShuffle? 1 : 0), -10, 10);
 
+        this.cooldown = 0;
         this.mana = manaMax;
         this.numberCasted = 0;
     }
@@ -40,7 +46,7 @@ public class WandProperty {
      */
     public static WandProperty getProperty(ItemStack wandStack, Random random) {
         boolean needFlush = false;
-        WandProperty property = new WandProperty(random);
+        WandProperty property = new WandProperty(wandStack, random);
         if (wandStack.hasTag()) {
             CompoundNBT wandTag = wandStack.getTag();
             if (wandTag.contains("Wand")) {
@@ -54,6 +60,7 @@ public class WandProperty {
                 if (wandTag.contains("Capacity")) property.capacity = wandTag.getByte("Capacity"); else needFlush = true;
                 if (wandTag.contains("Spread")) property.spread = wandTag.getFloat("Spread"); else needFlush = true;
 
+                if (wandTag.contains("Cooldown")) property.cooldown = wandTag.getInt("Cooldown"); else needFlush = true;
                 if (wandTag.contains("Mana")) property.mana = wandTag.getInt("Mana"); else needFlush = true;
                 if (wandTag.contains("NumberCasted")) property.numberCasted = wandTag.getInt("NumberCasted"); else needFlush = true;
             } else {
@@ -63,15 +70,23 @@ public class WandProperty {
             needFlush = true;
         }
         if (needFlush) {
-            property.writeProperty(wandStack);
+            property.writeProperty();
         }
         return property;
     }
 
-    public void writeProperty(ItemStack wandStack) {
+    public void writeProperty() {
         CompoundNBT tag = wandStack.getTag();
-        if (tag == null) tag = new CompoundNBT();
+        if (tag == null) {
+            tag = new CompoundNBT();
+            wandStack.setTag(tag);
+        }
         CompoundNBT wandNBT = new CompoundNBT();
+        if (tag.contains("Wand")) {
+            wandNBT = tag.getCompound("Wand");
+        } else {
+            tag.put("Wand", wandNBT);
+        }
         wandNBT.putBoolean("Shuffle", this.isShuffle);
         wandNBT.putByte("Casts", this.casts);
         wandNBT.putInt("CastDelay", this.castDelay);
@@ -81,9 +96,8 @@ public class WandProperty {
         wandNBT.putByte("Capacity", this.capacity);
         wandNBT.putFloat("Spread", this.spread);
 
+        wandNBT.putInt("Cooldown", this.cooldown);
         wandNBT.putInt("Mana", this.mana);
         wandNBT.putInt("NumberCasted", this.numberCasted);
-        tag.put("Wand", wandNBT);
-        wandStack.setTag(tag);
     }
 }

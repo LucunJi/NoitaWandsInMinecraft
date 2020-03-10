@@ -21,7 +21,7 @@ import net.minecraftforge.fml.network.NetworkHooks;
 import javax.annotation.Nullable;
 import java.util.UUID;
 
-public class SparkProjectile extends Entity implements IProjectile {
+public class SparkProjectileEntity extends SpellProjectileEntityBase {
 
     private UUID casterUUID;
     private LivingEntity caster;
@@ -30,13 +30,13 @@ public class SparkProjectile extends Entity implements IProjectile {
     private static final int expireAge = 13;
     private static final double gravity = 0.01;
 
-    public SparkProjectile(EntityType<SparkProjectile> type, World worldIn) {
+    public SparkProjectileEntity(EntityType<SparkProjectileEntity> type, World worldIn) {
         super(type, worldIn);
         this.age = 0;
         this.inGround = false;
     }
 
-    public SparkProjectile(EntityType<SparkProjectile> type, LivingEntity caster, World world) {
+    public SparkProjectileEntity(EntityType<SparkProjectileEntity> type, LivingEntity caster, World world) {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();
@@ -181,10 +181,11 @@ public class SparkProjectile extends Entity implements IProjectile {
     private void onHit(RayTraceResult rayTraceResult) {
         if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
             Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
+            if (entityHit.getUniqueID().equals(this.casterUUID)) return;
             entityHit.attackEntityFrom(DamageSource.causeIndirectDamage(this, caster), 3.0f);
             entityHit.hurtResistantTime = 0;
         }
-        this.remove();
+        if (!this.world.isRemote()) this.remove();
     }
 
     private float getWaterDrag() {

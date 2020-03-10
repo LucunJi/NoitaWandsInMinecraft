@@ -1,9 +1,14 @@
-package io.github.lucunji.noitacraft.item;
+package io.github.lucunji.noitacraft.item.wand;
 
-import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
-import io.github.lucunji.noitacraft.entity.projectile.SparkProjectile;
+import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.inventory.container.WandContainer;
+import io.github.lucunji.noitacraft.item.BaseItem;
+import io.github.lucunji.noitacraft.item.NoitaItems;
+import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.util.ITooltipFlag;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -19,6 +24,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
+import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -30,6 +36,18 @@ public class WandItem extends BaseItem {
     }
 
     @Override
+    public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
+        if (!player.world.isRemote() && player instanceof ServerPlayerEntity) {
+            if (!player.isShiftKeyDown()) {
+                cast(player.world, ((ServerPlayerEntity) player), stack);
+            }
+        } else {
+            ((ClientPlayerEntity) player).moveStrafing *= 5f;
+            ((ClientPlayerEntity) player).moveForward *= 5f;
+        }
+    }
+
+    @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemStack = playerIn.getHeldItem(handIn);
         if (!worldIn.isRemote() && playerIn instanceof ServerPlayerEntity) {
@@ -38,7 +56,7 @@ public class WandItem extends BaseItem {
                     WandProperty wandProperty = WandProperty.getProperty(itemStack, playerIn.getRNG());
                     NetworkHooks.openGui((ServerPlayerEntity) playerIn, new WandContainerProvider(itemStack), buffer -> buffer.writeItemStack(itemStack));
                 } else {
-                    cast(worldIn, playerIn, itemStack);
+                    playerIn.setActiveHand(handIn);
                 }
                 return ActionResult.resultSuccess(itemStack);
             }
@@ -46,11 +64,36 @@ public class WandItem extends BaseItem {
         return ActionResult.resultFail(itemStack);
     }
 
+
+
+    @Override
+    public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
+        return true;
+    }
+
     private static void cast(World world, PlayerEntity caster, ItemStack wandStack) {
         WandProperty wandProperty = WandProperty.getProperty(wandStack, caster.getRNG());
-        SparkProjectile sparkProjectile = new SparkProjectile(NoitaEntityTypes.PROJECTILE_SPARK, caster, world);
-        sparkProjectile.shoot(caster, caster.rotationPitch, caster.rotationYaw, 1.5f, 1.0f);
-        world.addEntity(sparkProjectile);
+        if (wandProperty.cooldown > 0) return;
+        WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandProperty, new WandInventory(wandStack));
+        castingHandler.cast(world, caster).forEach(entity -> world.addEntity(entity));
+        wandProperty.writeProperty();
+    }
+
+    @Override
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if (entityIn instanceof PlayerEntity) {
+            WandProperty wandProperty = WandProperty.getProperty(stack, ((PlayerEntity) entityIn).getRNG());
+            boolean needWrite = false;
+            if (wandProperty.cooldown > 0) {
+                --wandProperty.cooldown;
+                needWrite = true;
+            }
+            if (wandProperty.mana < wandProperty.manaMax) {
+                wandProperty.mana = Math.min(wandProperty.manaMax, wandProperty.mana + wandProperty.manaChargeSpeed);
+                needWrite = true;
+            }
+            if (needWrite) wandProperty.writeProperty();
+        }
     }
 
     @OnlyIn(Dist.CLIENT)

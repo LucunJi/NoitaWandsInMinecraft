@@ -1,11 +1,9 @@
 package io.github.lucunji.noitacraft.client.renderer.entity;
 
 import com.mojang.blaze3d.matrix.MatrixStack;
-import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.IVertexBuilder;
 import io.github.lucunji.noitacraft.NoitaCraft;
-import io.github.lucunji.noitacraft.entity.projectile.SparkProjectile;
-import net.minecraft.client.Minecraft;
+import io.github.lucunji.noitacraft.entity.projectile.SparkProjectileEntity;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
@@ -13,7 +11,7 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.MathHelper;
 
-public class SparkProjectileRenderer extends EntityRenderer<SparkProjectile> {
+public class SparkProjectileRenderer extends EntityRenderer<SparkProjectileEntity> {
 
     private static final ResourceLocation TEXTURE = new ResourceLocation(NoitaCraft.MOD_ID, "textures/entity/spell/spell_spark_bolt.png");
 
@@ -24,7 +22,7 @@ public class SparkProjectileRenderer extends EntityRenderer<SparkProjectile> {
     }
 
     @Override
-    public void render(SparkProjectile entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
+    public void render(SparkProjectileEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.push();
         matrixStackIn.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entityIn.prevRotationYaw, entityIn.rotationYaw) - 90.0F));
         matrixStackIn.rotate(Vector3f.ZP.rotationDegrees(MathHelper.lerp(partialTicks, entityIn.prevRotationPitch, entityIn.rotationPitch)));
@@ -53,7 +51,7 @@ public class SparkProjectileRenderer extends EntityRenderer<SparkProjectile> {
     }
 
     @Override
-    public ResourceLocation getEntityTexture(SparkProjectile entity) {
+    public ResourceLocation getEntityTexture(SparkProjectileEntity entity) {
         return TEXTURE;
     }
 }
