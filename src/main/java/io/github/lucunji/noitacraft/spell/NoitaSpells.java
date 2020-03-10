@@ -1,6 +1,7 @@
 package io.github.lucunji.noitacraft.spell;
 
 import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
+import io.github.lucunji.noitacraft.entity.projectile.BombProjectileEntity;
 import io.github.lucunji.noitacraft.entity.projectile.SparkProjectileEntity;
 
 public class NoitaSpells {
@@ -38,6 +39,6 @@ public class NoitaSpells {
             0,
             0.0f,
             0.0f,
-            (world, playerEntity) -> new SparkProjectileEntity(NoitaEntityTypes.PROJECTILE_SPARK, playerEntity, world));
+            (world, playerEntity) -> new BombProjectileEntity(NoitaEntityTypes.PROJECTILE_BOMB, playerEntity, world));
 }
 

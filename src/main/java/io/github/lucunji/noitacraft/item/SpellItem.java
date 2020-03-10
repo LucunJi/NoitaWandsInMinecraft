@@ -1,7 +1,6 @@
 package io.github.lucunji.noitacraft.item;
 
 import io.github.lucunji.noitacraft.spell.SpellBase;
-import io.github.lucunji.noitacraft.spell.StaticSpell;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.ITextComponent;
@@ -28,9 +27,9 @@ public class SpellItem extends BaseItem {
         tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.mana_drain", spell.manaDrain));
         tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.cast_delay", spell.castDelay / 20.0));
         tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.recharge_time", spell.rechargeTime / 20.0));
-        if (spell instanceof StaticSpell && ((StaticSpell) spell).uses > -1) {
-            tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.uses_remain", stack.getDamage()));
-        }
+//        if (spell instanceof StaticSpell && ((StaticSpell) spell).uses > -1) {
+//            tooltip.add(new TranslationTextComponent("desc.noitacraft.spell.uses_remain", stack.getDamage()));
+//        }
     }
 
     public SpellBase getSpell() {

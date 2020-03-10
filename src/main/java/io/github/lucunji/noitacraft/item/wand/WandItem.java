@@ -8,7 +8,6 @@ import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
@@ -24,9 +23,9 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
-import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nullable;
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -53,7 +52,7 @@ public class WandItem extends BaseItem {
         if (!worldIn.isRemote() && playerIn instanceof ServerPlayerEntity) {
             if (handIn == Hand.MAIN_HAND && itemStack.getItem().equals(NoitaItems.WAND)) {
                 if (playerIn.isShiftKeyDown()) {
-                    WandProperty wandProperty = WandProperty.getProperty(itemStack, playerIn.getRNG());
+                    WandProperty wandProperty = WandProperty.getPropertyNotNull(itemStack, playerIn.getRNG());
                     NetworkHooks.openGui((ServerPlayerEntity) playerIn, new WandContainerProvider(itemStack), buffer -> buffer.writeItemStack(itemStack));
                 } else {
                     playerIn.setActiveHand(handIn);
@@ -64,7 +63,25 @@ public class WandItem extends BaseItem {
         return ActionResult.resultFail(itemStack);
     }
 
+    @Override
+    public boolean showDurabilityBar(ItemStack stack) {
+        return true;
+    }
 
+    @Override
+    public double getDurabilityForDisplay(ItemStack stack) {
+        WandProperty property = WandProperty.getPropertyNullable(stack);
+        if (property == null) {
+            return super.getDurabilityForDisplay(stack);
+        } else {
+            return 1.0 - (double) property.mana / (double) property.manaMax;
+        }
+    }
+
+    @Override
+    public int getRGBDurabilityForDisplay(ItemStack stack) {
+        return new Color(51, 188, 247).getRGB();
+    }
 
     @Override
     public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
@@ -72,23 +89,23 @@ public class WandItem extends BaseItem {
     }
 
     private static void cast(World world, PlayerEntity caster, ItemStack wandStack) {
-        WandProperty wandProperty = WandProperty.getProperty(wandStack, caster.getRNG());
+        WandProperty wandProperty = WandProperty.getPropertyNotNull(wandStack, caster.getRNG());
         if (wandProperty.cooldown > 0) return;
         WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandProperty, new WandInventory(wandStack));
-        castingHandler.cast(world, caster).forEach(entity -> world.addEntity(entity));
+        castingHandler.cast(world, caster).forEach(world::addEntity);
         wandProperty.writeProperty();
     }
 
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (entityIn instanceof PlayerEntity) {
-            WandProperty wandProperty = WandProperty.getProperty(stack, ((PlayerEntity) entityIn).getRNG());
+            WandProperty wandProperty = WandProperty.getPropertyNotNull(stack, ((PlayerEntity) entityIn).getRNG());
             boolean needWrite = false;
             if (wandProperty.cooldown > 0) {
                 --wandProperty.cooldown;
                 needWrite = true;
             }
-            if (wandProperty.mana < wandProperty.manaMax) {
+            if (wandProperty.mana < wandProperty.manaMax && worldIn.getGameTime() % 20 == 0) {
                 wandProperty.mana = Math.min(wandProperty.manaMax, wandProperty.mana + wandProperty.manaChargeSpeed);
                 needWrite = true;
             }

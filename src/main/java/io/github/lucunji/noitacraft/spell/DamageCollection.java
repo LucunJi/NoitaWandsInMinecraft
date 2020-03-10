@@ -1,5 +1,9 @@
 package io.github.lucunji.noitacraft.spell;
 
+/**
+ * Different types of damage source
+ * Impact: projectile impact damage
+ */
 public class DamageCollection {
     protected final float damageImpact;
     protected final float damageExplosion;

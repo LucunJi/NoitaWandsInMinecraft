@@ -23,16 +23,11 @@ import java.util.UUID;
 
 public class SparkProjectileEntity extends SpellProjectileEntityBase {
 
-    private UUID casterUUID;
-    private LivingEntity caster;
-    private boolean inGround;
-    private int age;
     private static final int expireAge = 13;
     private static final double gravity = 0.01;
 
     public SparkProjectileEntity(EntityType<SparkProjectileEntity> type, World worldIn) {
         super(type, worldIn);
-        this.age = 0;
         this.inGround = false;
     }
 
@@ -43,6 +38,7 @@ public class SparkProjectileEntity extends SpellProjectileEntityBase {
         this.caster = caster;
     }
 
+    @Override
     public void shoot(Entity shooter, float pitch, float yaw, float velocity, float inaccuracy) {
         float x = -MathHelper.sin(yaw * ((float)Math.PI / 180F)) * MathHelper.cos(pitch * ((float)Math.PI / 180F));
         float y = -MathHelper.sin(pitch * ((float)Math.PI / 180F));
@@ -51,6 +47,7 @@ public class SparkProjectileEntity extends SpellProjectileEntityBase {
         this.setMotion(this.getMotion().add(shooter.getMotion().x, shooter.onGround ? 0.0D : shooter.getMotion().y, shooter.getMotion().z));
     }
 
+    @Override
     public void shoot(double x, double y, double z, float velocity, float inaccuracy) {
         Vec3d vec3d = (new Vec3d(x, y, z)).normalize().add(this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy, this.rand.nextGaussian() * (double)0.0075F * (double)inaccuracy).scale(velocity);
         this.setMotion(vec3d);
@@ -101,10 +98,6 @@ public class SparkProjectileEntity extends SpellProjectileEntityBase {
                     }
                 }
             }
-        }
-
-        if (this.isWet()) {
-            this.extinguish();
         }
 
         if (this.inGround) {
@@ -190,41 +183,5 @@ public class SparkProjectileEntity extends SpellProjectileEntityBase {
 
     private float getWaterDrag() {
         return 0.6f;
-    }
-
-    @Nullable
-    protected EntityRayTraceResult rayTraceEntities(Vec3d startVec, Vec3d endVec) {
-        return ProjectileHelper.rayTraceEntities(this.world, this, startVec, endVec,
-                this.getBoundingBox().expand(this.getMotion()).grow(1.0D),
-                (entity) -> !entity.isSpectator() && entity.isAlive() && entity.canBeCollidedWith() && (entity != this.caster));
-    }
-
-    @Override
-    protected void registerData() {
-
-    }
-
-    @Override
-    protected void readAdditional(CompoundNBT compound) {
-        if (compound.contains("Caster")) {
-            this.casterUUID = compound.getUniqueId("Caster");
-            if (!this.world.isRemote() && this.casterUUID != null) {
-                ((ServerWorld) this.world).getEntityByUuid(this.casterUUID);
-            }
-        }
-        if (compound.contains("inGround")) this.inGround = compound.getBoolean("inGround");
-        if (compound.contains("Age")) this.age = compound.getInt("Age");
-    }
-
-    @Override
-    protected void writeAdditional(CompoundNBT compound) {
-        if (this.casterUUID != null) compound.putUniqueId("Caster", casterUUID);
-        compound.putBoolean("inGround", inGround);
-        compound.putInt("Age", this.age);
-    }
-
-    @Override
-    public IPacket<?> createSpawnPacket() {
-        return NetworkHooks.getEntitySpawningPacket(this);
     }
 }

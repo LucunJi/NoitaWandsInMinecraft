@@ -1,13 +1,15 @@
 package io.github.lucunji.noitacraft.item.wand;
 
-import io.github.lucunji.noitacraft.inventory.WandInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 
+import javax.annotation.Nullable;
 import java.util.Random;
 
 public class WandProperty {
+    private static final Random RNG = new Random(0);
+
     protected boolean isShuffle;
     protected byte casts;
     protected int castDelay;
@@ -40,11 +42,38 @@ public class WandProperty {
         this.numberCasted = 0;
     }
 
+    @Nullable
+    public static WandProperty getPropertyNullable(ItemStack wandStack) {
+        if (wandStack.hasTag()) {
+            CompoundNBT wandTag = wandStack.getTag();
+            if (wandTag.contains("Wand")) {
+                wandTag = wandTag.getCompound("Wand");
+                if (!wandTag.contains("Shuffle")) return null;
+                if (!wandTag.contains("Casts")) return null;
+                if (!wandTag.contains("CastDelay")) return null;
+                if (!wandTag.contains("RechargeTime")) return null;
+                if (!wandTag.contains("ManaMax")) return null;
+                if (!wandTag.contains("ManaChargeSpeed")) return null;
+                if (!wandTag.contains("Capacity")) return null;
+                if (!wandTag.contains("Spread")) return null;
+
+                if (!wandTag.contains("Cooldown")) return null;
+                if (!wandTag.contains("Mana")) return null;
+                if (!wandTag.contains("NumberCasted")) return null;
+                return getPropertyNotNull(wandStack, RNG);
+            } else {
+                return null;
+            }
+        } else {
+            return null;
+        }
+    }
+
     /**
      * Get properties from an item stack of wand.
      * @return a WandProperty. Missing tags will be randomly initialized.
      */
-    public static WandProperty getProperty(ItemStack wandStack, Random random) {
+    public static WandProperty getPropertyNotNull(ItemStack wandStack, Random random) {
         boolean needFlush = false;
         WandProperty property = new WandProperty(wandStack, random);
         if (wandStack.hasTag()) {

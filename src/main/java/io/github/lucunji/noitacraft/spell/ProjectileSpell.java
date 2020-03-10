@@ -7,7 +7,7 @@ import net.minecraft.world.World;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
-public class ProjectileSpell extends StaticSpell {
+public class ProjectileSpell extends SpellBase {
     public final DamageCollection damageCollection;
     public final int radius;
     public final float spread;
@@ -18,19 +18,11 @@ public class ProjectileSpell extends StaticSpell {
     public final BiFunction<World, PlayerEntity, SpellProjectileEntityBase> entitySummoner;
 
     public ProjectileSpell(int manaDrain, int castDelay, DamageCollection damageCollection, int radius, float spread, int speedMin, int speedMax, BiFunction<World, PlayerEntity, SpellProjectileEntityBase> entitySummoner) {
-        super(manaDrain, castDelay);
-        this.damageCollection = damageCollection;
-        this.radius = radius;
-        this.spread = spread;
-        this.speedMin = speedMin;
-        this.speedMax = speedMax;
-        this.entitySummoner = entitySummoner;
-        this.spreadModifier = 0.0f;
-        this.criticalChance = 0.0f;
+        this(-1, manaDrain, castDelay, 0, damageCollection, radius, spread, speedMin, speedMax, 0.0f, 0.0f, entitySummoner);
     }
 
     public ProjectileSpell(int uses, int manaDrain, int castDelay, int rechargeTime, DamageCollection damageCollection, int radius, float spread, int speedMin, int speedMax, float spreadModifier, float criticalChance, BiFunction<World, PlayerEntity, SpellProjectileEntityBase> entitySummoner) {
-        super(uses, manaDrain, castDelay, rechargeTime);
+        super(manaDrain, castDelay, rechargeTime, uses, SpellTypes.PROJECTILE_MAGICAL);
         this.damageCollection = damageCollection;
         this.radius = radius;
         this.spread = spread;

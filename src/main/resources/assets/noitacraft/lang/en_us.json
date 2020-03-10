@@ -12,6 +12,7 @@
   "desc.noitacraft.wand.capacity": "§6Capacity: §r%d",
   "desc.noitacraft.wand.spread": "§6Spread: §r%f",
   "desc.noitacraft.wand.uninitialized": "§cUninitialized§r",
+  "info.noitacraft.wand.cooldown": "Wand is cooling down",
 
   "_comment": "SPELLS",
   "item.noitacraft.spell_energy_sphere": "§bEnergy Sphere§r",

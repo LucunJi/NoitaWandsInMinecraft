@@ -1,5 +1,6 @@
 package io.github.lucunji.noitacraft.setup;
 
+import io.github.lucunji.noitacraft.client.renderer.entity.BombProjectileRenderer;
 import io.github.lucunji.noitacraft.client.renderer.entity.SparkProjectileRenderer;
 import io.github.lucunji.noitacraft.client.screen.WandScreen;
 import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
@@ -19,5 +20,6 @@ public class ClientProxy implements IProxy {
     public void init() {
         ScreenManager.registerFactory(NoitaContainers.WAND_CONTAINER, WandScreen::new);
         RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.PROJECTILE_SPARK, SparkProjectileRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.PROJECTILE_BOMB, BombProjectileRenderer::new);
     }
 }

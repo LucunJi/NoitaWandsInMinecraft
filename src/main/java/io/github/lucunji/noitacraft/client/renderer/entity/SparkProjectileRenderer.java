@@ -22,6 +22,11 @@ public class SparkProjectileRenderer extends EntityRenderer<SparkProjectileEntit
     }
 
     @Override
+    protected int getBlockLight(SparkProjectileEntity entityIn, float partialTicks) {
+        return 15;
+    }
+
+    @Override
     public void render(SparkProjectileEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.push();
         matrixStackIn.rotate(Vector3f.YP.rotationDegrees(MathHelper.lerp(partialTicks, entityIn.prevRotationYaw, entityIn.rotationYaw) - 90.0F));
@@ -30,7 +35,7 @@ public class SparkProjectileRenderer extends EntityRenderer<SparkProjectileEntit
         matrixStackIn.rotate(Vector3f.XP.rotationDegrees(45.0F));
         matrixStackIn.scale(0.05625F, 0.05625F, 0.05625F);
         matrixStackIn.translate(-4.0D, 0.0D, 0.0D);
-        IVertexBuilder ivertexbuilder = bufferIn.getBuffer(RenderType.getEyes(this.getEntityTexture(entityIn)));
+        IVertexBuilder ivertexbuilder = bufferIn.getBuffer(RenderType.getEntityCutout(TEXTURE));
         MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
         Matrix4f matrix4f = matrixstack$entry.getMatrix();
         Matrix3f matrix3f = matrixstack$entry.getNormal();
