@@ -1,5 +1,7 @@
 package io.github.lucunji.noitacraft.entity.spell;
 
+import io.github.lucunji.noitacraft.spell.ISpellEnum;
+import io.github.lucunji.noitacraft.util.CastHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IProjectile;
@@ -15,13 +17,19 @@ import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.UUID;
 
 public abstract class SpellEntityBase extends Entity implements IProjectile {
     protected UUID casterUUID;
     protected LivingEntity caster;
+
     protected boolean inGround;
     protected int age;
+
+    protected List<ISpellEnum> castList1 = null;
+    protected List<ISpellEnum> castList2 = null;
+    protected boolean casted = false;
 
     public SpellEntityBase(EntityType<? extends SpellEntityBase> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
@@ -40,6 +48,14 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         }
         if (compound.contains("inGround")) this.inGround = compound.getBoolean("inGround");
         if (compound.contains("Age")) this.age = compound.getInt("Age");
+
+        if (compound.contains("Casted")) this.casted = compound.getBoolean("Casted");
+        if (compound.contains("CastList1")) {
+            this.castList1 = CastHelper.spellListFromNBT(compound.getList("CastList1", 8));
+        }
+        if (compound.contains("CastList2")) {
+            this.castList2 = CastHelper.spellListFromNBT(compound.getList("CastList2", 8));
+        }
     }
 
     @Override
@@ -47,6 +63,14 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         if (this.casterUUID != null) compound.putUniqueId("Caster", casterUUID);
         compound.putBoolean("inGround", inGround);
         compound.putInt("Age", this.age);
+
+        compound.putBoolean("Casted", this.casted);
+        if (this.castList1 != null) {
+            compound.put("CastList1", CastHelper.spellNBTFromList(castList1));
+        }
+        if (this.castList2 != null) {
+            compound.put("CastList2", CastHelper.spellNBTFromList(castList2));
+        }
     }
 
     @Override
@@ -76,6 +100,10 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         super.tick();
         ++this.age;
         if (this.age > this.getExpireAge()) onAgeExpire();
+        if (this.canCast() && !this.casted && this.age > this.getAgeToCast()) {
+
+        }
+
         this.generateParticles();
     }
 
@@ -101,5 +129,13 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
 
     public LivingEntity getCaster() {
         return caster;
+    }
+
+    public boolean canCast() {
+        return false;
+    }
+
+    protected int getAgeToCast() {
+        return Integer.MAX_VALUE;
     }
 }

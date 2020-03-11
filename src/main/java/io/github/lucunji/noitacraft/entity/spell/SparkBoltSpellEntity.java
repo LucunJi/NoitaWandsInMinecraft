@@ -1,14 +1,13 @@
 package io.github.lucunji.noitacraft.entity.spell;
 
 import io.github.lucunji.noitacraft.item.NoitaItems;
-import io.github.lucunji.noitacraft.spell.NoitaSpells;
+import io.github.lucunji.noitacraft.spell.ProjectileSpell;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.particles.ItemParticleData;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.EntityRayTraceResult;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
@@ -42,7 +41,7 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
         if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
             Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
             if (entityHit.getUniqueID().equals(this.casterUUID)) return;
-            NoitaSpells.SPARK_BOLT.damageCollection.causeDamage(this, entityHit);
+            ProjectileSpell.SPARK_BOLT.damageCollection().causeDamage(this, entityHit);
         }
         if (!this.world.isRemote()) this.remove();
     }

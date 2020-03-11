@@ -4,7 +4,6 @@ import io.github.lucunji.noitacraft.NoitaCraft;
 import io.github.lucunji.noitacraft.entity.spell.BombSpellEntity;
 import io.github.lucunji.noitacraft.entity.spell.EnergySphereSpellEntity;
 import io.github.lucunji.noitacraft.entity.spell.SparkBoltSpellEntity;
-import io.github.lucunji.noitacraft.spell.NoitaSpells;
 import net.minecraft.entity.EntityClassification;
 import net.minecraft.entity.EntityType;
 import net.minecraftforge.event.RegistryEvent;

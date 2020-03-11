@@ -1,6 +1,6 @@
 package io.github.lucunji.noitacraft.spell;
 
-public enum SpellTypes {
+public enum SpellType {
     PROJECTILE_PHYSICAL,
     PROJECTILE_MAGICAL,
     PROJECTILE_STATIC,

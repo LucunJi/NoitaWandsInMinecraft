@@ -3,8 +3,8 @@ package io.github.lucunji.noitacraft.item.wand;
 import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
 import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.item.SpellItem;
+import io.github.lucunji.noitacraft.spell.ISpellEnum;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
-import io.github.lucunji.noitacraft.spell.SpellBase;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
@@ -40,22 +40,24 @@ public class WandCastingHandler {
         if (spellPoolIterator.hasNext()) {
             ItemStack spellStack = spellPoolIterator.next();
             if (spellStack.getItem() instanceof SpellItem) {
-                SpellBase spell = ((SpellItem) spellStack.getItem()).getSpell();
-                if (spell.manaDrain <= wandProperty.mana) {
+                ISpellEnum spell = ((SpellItem) spellStack.getItem()).getSpell();
+                if (spell.getManaDrain() <= wandProperty.mana) {
                     if (spell instanceof ProjectileSpell) {
-                        ProjectileSpell projectileSpell = (ProjectileSpell) spell;
-                        SpellEntityBase projectileEntity = projectileSpell.entitySummoner.apply(world, caster);
+                        ProjectileSpell projectileProjectileSpell = (ProjectileSpell) spell;
+                        SpellEntityBase projectileEntity = projectileProjectileSpell.entitySummoner().apply(world, caster);
                         float speed = 0.0f;
-                        if (projectileSpell.speedMin < projectileSpell.speedMax)
-                            speed = caster.getRNG().nextInt(projectileSpell.speedMax - projectileSpell.speedMin) + projectileSpell.speedMin;
+                        int speedMin = projectileProjectileSpell.getSpeedMin();
+                        int speedMax = projectileProjectileSpell.getSpeedMax();
+                        if (speedMin < speedMax)
+                            speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
                         speed += 200f;
                         speed /= 600f;
                         projectileEntity.shoot(caster, caster.rotationPitch, caster.rotationYaw, speed, 1.0f);
                         entities.add(projectileEntity);
                     }
-                    accumulatedRechargeTime += spell.rechargeTime;
-                    accumulatedCastDelay += spell.castDelay;
-                    wandProperty.mana -= spell.manaDrain;
+                    accumulatedRechargeTime += spell.getRechargeTime();
+                    accumulatedCastDelay += spell.getCastDelay();
+                    wandProperty.mana -= spell.getManaDrain();
                 }
             }
         }

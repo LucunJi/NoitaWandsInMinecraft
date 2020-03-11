@@ -11,12 +11,14 @@ import net.minecraft.util.DamageSource;
 public class DamageCollection {
     private final float damageImpact;
     private final float damageExplosion;
+    private final float radius;
     private final float damageSlice;
     private final float damageElectricity;
 
-    public DamageCollection(float damageImpact, float damageExplosion, float damageSlice, float damageElectricity) {
+    public DamageCollection(float damageImpact, float damageExplosion, float explosionRadius, float damageSlice, float damageElectricity) {
         this.damageImpact = damageImpact;
         this.damageExplosion = damageExplosion;
+        this.radius = explosionRadius;
         this.damageSlice = damageSlice;
         this.damageElectricity = damageElectricity;
     }

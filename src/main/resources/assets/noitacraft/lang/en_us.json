@@ -24,7 +24,7 @@
 
   "_comment": "SPELL PROPERTIES",
   "desc.noitacraft.spell.mana_drain": "§6Mana drain: §r%d",
-  "desc.noitacraft.spell.cast_delay": "§6Cast delay: §r%f",
-  "desc.noitacraft.spell.recharge_time": "§6Recharge time: §r%f",
+  "desc.noitacraft.spell.cast_delay": "§6Cast delay: §r+%f",
+  "desc.noitacraft.spell.recharge_time": "§6Recharge time: §r+%f",
   "desc.noitacraft.spell.uses_remain": "§6Uses Remain: §r%d"
 }

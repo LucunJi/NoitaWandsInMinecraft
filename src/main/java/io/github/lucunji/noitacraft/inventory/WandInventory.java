@@ -27,7 +27,7 @@ public class WandInventory extends Inventory {
         if (wandItemStack.hasTag()) {
             CompoundNBT wandTag = wandItemStack.getTag().getCompound("Wand");
             final NonNullList<ItemStack> list = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
-            ItemStackHelper.loadAllItems(wandTag.getCompound("Spells"), list);
+            ItemStackHelper.loadAllItems(wandTag.getCompound("ProjectileSpell"), list);
             for (int i = 0; i < this.getSizeInventory(); ++i) {
                 setInventorySlotContents(i, list.get(i));
             }
@@ -45,13 +45,13 @@ public class WandInventory extends Inventory {
             wandNBT = tag.getCompound("Wand");
             tag.put("Wand", wandNBT);
         }
-        if (!wandNBT.contains("Spells")) wandNBT.put("Spells", new CompoundNBT());
+        if (!wandNBT.contains("ProjectileSpell")) wandNBT.put("ProjectileSpell", new CompoundNBT());
         if (wandItemStack.hasTag()) {
             final NonNullList<ItemStack> list = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
             for (int i = 0; i < this.getSizeInventory(); ++i) {
                 list.set(i, this.getStackInSlot(i));
             }
-            ItemStackHelper.saveAllItems(wandNBT.getCompound("Spells"), list, true);
+            ItemStackHelper.saveAllItems(wandNBT.getCompound("ProjectileSpell"), list, true);
         }
     }
 }
