@@ -9,13 +9,13 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 @OnlyIn(Dist.CLIENT)
-public class BombProjectileModel extends Model {
+public class BombSpellModel extends Model {
     private final ModelRenderer modelRenderer;
 
-    public BombProjectileModel() {
+    public BombSpellModel() {
         super(RenderType::getEntityTranslucent);
         this.textureWidth = 32;
-        this.textureHeight = 32;
+        this.textureHeight = 16;
         this.modelRenderer = new ModelRenderer(this, 0, 0);
         this.modelRenderer.addBox(-4.0F, -8.0F, -4.0F, 8.0F, 8.0F, 8.0F, 0.0F);
         this.modelRenderer.setRotationPoint(0.0F, 0.0F, 0.0F);

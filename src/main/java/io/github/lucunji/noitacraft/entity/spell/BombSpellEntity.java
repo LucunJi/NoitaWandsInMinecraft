@@ -1,4 +1,4 @@
-package io.github.lucunji.noitacraft.entity.projectile;
+package io.github.lucunji.noitacraft.entity.spell;
 
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
@@ -12,24 +12,13 @@ import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
 
-import java.util.UUID;
+public class BombSpellEntity extends SpellEntityBase {
 
-public class BombProjectileEntity extends SpellProjectileEntityBase {
-
-    private UUID casterUUID;
-    private LivingEntity caster;
-    private boolean inGround;
-    private int age;
-    private static final int expireAge = 80;
-    private static final double gravity = 0.05;
-
-    public BombProjectileEntity(EntityType<BombProjectileEntity> type, World worldIn) {
+    public BombSpellEntity(EntityType<BombSpellEntity> type, World worldIn) {
         super(type, worldIn);
-        this.age = 0;
-        this.inGround = false;
     }
 
-    public BombProjectileEntity(EntityType<BombProjectileEntity> type, LivingEntity caster, World world) {
+    public BombSpellEntity(EntityType<BombSpellEntity> type, LivingEntity caster, World world) {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();
@@ -59,9 +48,6 @@ public class BombProjectileEntity extends SpellProjectileEntityBase {
 
     public void tick() {
         super.tick();
-
-        ++this.age;
-        if (this.age > expireAge) this.explode();
 
         this.prevPosX = this.getPosX();
         this.prevPosY = this.getPosY();
@@ -108,18 +94,8 @@ public class BombProjectileEntity extends SpellProjectileEntityBase {
         }
 
         Vec3d motionVec = this.getMotion();
-        Vec3d nextPos = this.getPositionVec().add(motionVec);
         if (this.isInWater()) {
-            for(int j = 0; j < 4; ++j) {
-                this.world.addParticle(ParticleTypes.BUBBLE,
-                        nextPos.getX() - motionVec.getX() * 0.25D, nextPos.getY() - motionVec.getY() * 0.25D, nextPos.getZ()  - motionVec.getZ() * 0.25D,
-                        motionVec.getX(), motionVec.getY(), motionVec.getZ());
-            }
-
             this.setMotion(motionVec.scale(this.getWaterDrag()));
-        }
-        for (int i = 0; i < 3; i++) {
-            this.world.addParticle(ParticleTypes.SMOKE, this.getPosXRandom(0.5D), this.getPosYRandom(), this.getPosZRandom(0.5D), 0, 0, 0);
         }
     }
 
@@ -127,21 +103,38 @@ public class BombProjectileEntity extends SpellProjectileEntityBase {
     public boolean attackEntityFrom(DamageSource source, float amount) {
         if (!this.world.isRemote()) {
             if (source.isExplosion()) {
-                this.age = expireAge - 2;
+                this.age = this.getExpireAge() - 2;
                 return false;
             }
         }
         return super.attackEntityFrom(source, amount);
     }
+    @Override
+    protected float getWaterDrag() {
+        return 0.6f;
+    }
 
-    private void explode() {
+    @Override
+    protected float getGravity() {
+        return 0;
+    }
+
+    @Override
+    protected int getExpireAge() {
+        return 80;
+    }
+
+    @Override
+    protected void onAgeExpire() {
         if (!this.world.isRemote()) {
             this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.caster), this.getPosX(), this.getPosY(), this.getPosZ(), 3, true, Explosion.Mode.BREAK);
             this.remove();
         }
     }
 
-    private float getWaterDrag() {
-        return 0.6f;
+    @Override
+    protected void generateParticles() {
+        super.generateParticles();
+        this.world.addParticle(ParticleTypes.SMOKE, this.getPosXRandom(0.5D), this.getPosYRandom(), this.getPosZRandom(0.5D), 0, 0, 0);
     }
 }

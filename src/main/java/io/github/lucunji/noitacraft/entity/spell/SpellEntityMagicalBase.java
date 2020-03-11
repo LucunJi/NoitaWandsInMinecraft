@@ -1,41 +1,17 @@
-package io.github.lucunji.noitacraft.entity.projectile;
+package io.github.lucunji.noitacraft.entity.spell;
 
-import io.github.lucunji.noitacraft.item.NoitaItems;
 import net.minecraft.block.BlockState;
-import net.minecraft.entity.*;
-import net.minecraft.entity.projectile.ProjectileHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.IPacket;
-import net.minecraft.particles.ItemParticleData;
-import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.DamageSource;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityType;
 import net.minecraft.util.math.*;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.fml.network.NetworkHooks;
 
-import javax.annotation.Nullable;
-import java.util.UUID;
-
-public class SparkProjectileEntity extends SpellProjectileEntityBase {
-
-    private static final int expireAge = 13;
-    private static final double gravity = 0.01;
-
-    public SparkProjectileEntity(EntityType<SparkProjectileEntity> type, World worldIn) {
-        super(type, worldIn);
-        this.inGround = false;
-    }
-
-    public SparkProjectileEntity(EntityType<SparkProjectileEntity> type, LivingEntity caster, World world) {
-        this(type, world);
-        this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
-        this.casterUUID = caster.getUniqueID();
-        this.caster = caster;
+public abstract class SpellEntityMagicalBase extends SpellEntityBase {
+    public SpellEntityMagicalBase(EntityType<? extends SpellEntityMagicalBase> entityTypeIn, World worldIn) {
+        super(entityTypeIn, worldIn);
     }
 
     @Override
@@ -58,23 +34,9 @@ public class SparkProjectileEntity extends SpellProjectileEntityBase {
         this.prevRotationPitch = this.rotationPitch;
     }
 
-    @OnlyIn(Dist.CLIENT)
-    public void setVelocity(double x, double y, double z) {
-        this.setMotion(x, y, z);
-        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
-            float f = MathHelper.sqrt(x * x + z * z);
-            this.rotationPitch = (float)(MathHelper.atan2(y, f) * (double)(180F / (float)Math.PI));
-            this.rotationYaw = (float)(MathHelper.atan2(x, z) * (double)(180F / (float)Math.PI));
-            this.prevRotationPitch = this.rotationPitch;
-            this.prevRotationYaw = this.rotationYaw;
-            this.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(), this.rotationYaw, this.rotationPitch);
-        }
-    }
-
+    @Override
     public void tick() {
         super.tick();
-        ++this.age;
-        if (this.age > expireAge) this.remove();
         Vec3d motionVec = this.getMotion();
         if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
             float f = MathHelper.sqrt(horizontalMag(motionVec));
@@ -151,37 +113,30 @@ public class SparkProjectileEntity extends SpellProjectileEntityBase {
             this.rotationYaw = MathHelper.lerp(0.2F, this.prevRotationYaw, this.rotationYaw);
             float motionScale = 0.99F;
             if (this.isInWater()) {
-                for(int j = 0; j < 4; ++j) {
-                    this.world.addParticle(ParticleTypes.BUBBLE,
-                            nextX - motionVec.getX() * 0.25D, nextY - motionVec.getY() * 0.25D, nextZ - motionVec.getZ() * 0.25D,
-                            motionVec.getX(), motionVec.getY(), motionVec.getZ());
-                }
-
                 motionScale = this.getWaterDrag();
-            }
-            for (int i = 0; i < 5; i++) {
-                this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_SPARK_BOLT)), this.getPosXRandom(0.5D), this.getPosYRandom(), this.getPosZRandom(0.5D), 0, 0, 0);
             }
 
             motionVec = motionVec.scale(motionScale);
-            this.setMotion(motionVec.x, motionVec.getY() - gravity, motionVec.getZ());
+            this.setMotion(motionVec.x, motionVec.getY() - this.getGravity(), motionVec.getZ());
 
             this.setPosition(nextX, nextY, nextZ);
             this.doBlockCollisions();
         }
     }
 
-    private void onHit(RayTraceResult rayTraceResult) {
-        if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
-            Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
-            if (entityHit.getUniqueID().equals(this.casterUUID)) return;
-            entityHit.attackEntityFrom(DamageSource.causeIndirectDamage(this, caster), 3.0f);
-            entityHit.hurtResistantTime = 0;
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public void setVelocity(double x, double y, double z) {
+        this.setMotion(x, y, z);
+        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
+            float f = MathHelper.sqrt(x * x + z * z);
+            this.rotationPitch = (float)(MathHelper.atan2(y, f) * (double)(180F / (float)Math.PI));
+            this.rotationYaw = (float)(MathHelper.atan2(x, z) * (double)(180F / (float)Math.PI));
+            this.prevRotationPitch = this.rotationPitch;
+            this.prevRotationYaw = this.rotationYaw;
+            this.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(), this.rotationYaw, this.rotationPitch);
         }
-        if (!this.world.isRemote()) this.remove();
     }
 
-    private float getWaterDrag() {
-        return 0.6f;
-    }
+    protected abstract void onHit(RayTraceResult traceResult);
 }

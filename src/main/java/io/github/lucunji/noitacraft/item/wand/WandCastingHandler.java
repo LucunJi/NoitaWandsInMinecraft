@@ -1,6 +1,6 @@
 package io.github.lucunji.noitacraft.item.wand;
 
-import io.github.lucunji.noitacraft.entity.projectile.SpellProjectileEntityBase;
+import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
 import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.item.SpellItem;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
@@ -9,7 +9,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.world.World;
-import org.apache.logging.log4j.LogManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +25,13 @@ public class WandCastingHandler {
         this.wandInventory = wandInventory;
     }
 
-    public List<SpellProjectileEntityBase> cast(World world, PlayerEntity caster) {
+    public List<SpellEntityBase> cast(World world, PlayerEntity caster) {
         if (wandProperty.isShuffle) {
             caster.sendMessage(new StringTextComponent("§cShuffling wand is not supported yet!§r"));
             return new ArrayList<>();
         }
 
-        List<SpellProjectileEntityBase> entities = new ArrayList<>();
+        List<SpellEntityBase> entities = new ArrayList<>();
 
         SpellPoolIterator spellPoolIterator = getSpellPoll(wandProperty, wandInventory);
 
@@ -45,11 +44,12 @@ public class WandCastingHandler {
                 if (spell.manaDrain <= wandProperty.mana) {
                     if (spell instanceof ProjectileSpell) {
                         ProjectileSpell projectileSpell = (ProjectileSpell) spell;
-                        SpellProjectileEntityBase projectileEntity = projectileSpell.entitySummoner.apply(world, caster);
+                        SpellEntityBase projectileEntity = projectileSpell.entitySummoner.apply(world, caster);
                         float speed = 0.0f;
                         if (projectileSpell.speedMin < projectileSpell.speedMax)
                             speed = caster.getRNG().nextInt(projectileSpell.speedMax - projectileSpell.speedMin) + projectileSpell.speedMin;
-                        speed /= 533.333f;
+                        speed += 200f;
+                        speed /= 600f;
                         projectileEntity.shoot(caster, caster.rotationPitch, caster.rotationYaw, speed, 1.0f);
                         entities.add(projectileEntity);
                     }

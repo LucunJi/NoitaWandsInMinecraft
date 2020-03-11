@@ -1,7 +1,8 @@
 package io.github.lucunji.noitacraft.setup;
 
-import io.github.lucunji.noitacraft.client.renderer.entity.BombProjectileRenderer;
-import io.github.lucunji.noitacraft.client.renderer.entity.SparkProjectileRenderer;
+import io.github.lucunji.noitacraft.client.renderer.entity.BombSpellRenderer;
+import io.github.lucunji.noitacraft.client.renderer.entity.EnergySphereSpellRenderer;
+import io.github.lucunji.noitacraft.client.renderer.entity.SparkBoltSpellRenderer;
 import io.github.lucunji.noitacraft.client.screen.WandScreen;
 import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
 import io.github.lucunji.noitacraft.inventory.container.NoitaContainers;
@@ -19,7 +20,8 @@ public class ClientProxy implements IProxy {
     @Override
     public void init() {
         ScreenManager.registerFactory(NoitaContainers.WAND_CONTAINER, WandScreen::new);
-        RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.PROJECTILE_SPARK, SparkProjectileRenderer::new);
-        RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.PROJECTILE_BOMB, BombProjectileRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_SPARK_BOLT, SparkBoltSpellRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_BOMB, BombSpellRenderer::new);
+        RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_ENERGY_SPHERE, EnergySphereSpellRenderer::new);
     }
 }

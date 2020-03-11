@@ -1,8 +1,9 @@
 package io.github.lucunji.noitacraft.spell;
 
 import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
-import io.github.lucunji.noitacraft.entity.projectile.BombProjectileEntity;
-import io.github.lucunji.noitacraft.entity.projectile.SparkProjectileEntity;
+import io.github.lucunji.noitacraft.entity.spell.BombSpellEntity;
+import io.github.lucunji.noitacraft.entity.spell.EnergySphereSpellEntity;
+import io.github.lucunji.noitacraft.entity.spell.SparkBoltSpellEntity;
 
 public class NoitaSpells {
     public static final ProjectileSpell ENERGY_SPHERE = new ProjectileSpell(
@@ -13,7 +14,7 @@ public class NoitaSpells {
             0.6f,
             400,
             500,
-            (world, playerEntity) -> new SparkProjectileEntity(NoitaEntityTypes.PROJECTILE_SPARK, playerEntity, world));
+            (world, playerEntity) -> new EnergySphereSpellEntity(NoitaEntityTypes.SPELL_ENERGY_SPHERE, playerEntity, world));
     public static final ProjectileSpell SPARK_BOLT = new ProjectileSpell(
             -1,
             5,
@@ -26,7 +27,7 @@ public class NoitaSpells {
             850,
             -1.0f,
             0.05f,
-            (world, playerEntity) -> new SparkProjectileEntity(NoitaEntityTypes.PROJECTILE_SPARK, playerEntity, world));
+            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world));
     public static final ProjectileSpell BOMB = new ProjectileSpell(
             3,
             25,
@@ -39,6 +40,6 @@ public class NoitaSpells {
             0,
             0.0f,
             0.0f,
-            (world, playerEntity) -> new BombProjectileEntity(NoitaEntityTypes.PROJECTILE_BOMB, playerEntity, world));
+            (world, playerEntity) -> new BombSpellEntity(NoitaEntityTypes.SPELL_BOMB, playerEntity, world));
 }
 
