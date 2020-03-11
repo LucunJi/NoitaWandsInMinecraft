@@ -1,6 +1,7 @@
 package io.github.lucunji.noitacraft.entity.spell;
 
 import io.github.lucunji.noitacraft.item.NoitaItems;
+import io.github.lucunji.noitacraft.spell.NoitaSpells;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
@@ -50,8 +51,7 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
         if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
             Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
             if (entityHit.getUniqueID().equals(this.casterUUID)) return;
-            entityHit.attackEntityFrom(DamageSource.causeIndirectDamage(this, caster), 10.0f);
-            entityHit.hurtResistantTime = 0;
+            NoitaSpells.ENERGY_SPHERE.damageCollection.causeDamage(this, entityHit);
             if (!this.world.isRemote()) this.remove();
         } else if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) {
             Vec3d motion = this.getMotion();

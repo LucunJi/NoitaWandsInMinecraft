@@ -121,7 +121,7 @@ public class BombSpellEntity extends SpellEntityBase {
 
     @Override
     protected int getExpireAge() {
-        return 80;
+        return 45;
     }
 
     @Override

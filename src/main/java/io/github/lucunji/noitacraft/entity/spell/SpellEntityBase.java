@@ -97,6 +97,9 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
                         motionVec.getX(), motionVec.getY(), motionVec.getZ());
             }
         }
+    }
 
+    public LivingEntity getCaster() {
+        return caster;
     }
 }

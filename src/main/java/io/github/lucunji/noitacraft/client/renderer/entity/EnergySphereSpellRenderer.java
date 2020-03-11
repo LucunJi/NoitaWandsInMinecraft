@@ -27,7 +27,7 @@ public class EnergySphereSpellRenderer extends EntityRenderer<EnergySphereSpellE
     @Override
     public void render(EnergySphereSpellEntity entityIn, float entityYaw, float partialTicks, MatrixStack matrixStackIn, IRenderTypeBuffer bufferIn, int packedLightIn) {
         matrixStackIn.push();
-        matrixStackIn.scale(0.95f, 0.95f, 0.95f);
+        matrixStackIn.scale(0.4f, 0.4f, 0.4f);
         matrixStackIn.rotate(this.renderManager.getCameraOrientation());
         matrixStackIn.rotate(Vector3f.YP.rotationDegrees(180.0F));
         MatrixStack.Entry matrixstack$entry = matrixStackIn.getLast();
