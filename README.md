@@ -17,3 +17,5 @@ WIP.
 - Physical Proj.:disappear after a while on ground
 
 - Magical Proj.: disappear in a zap
+
+- Modifier: all non-projectile stuff

@@ -15,6 +15,26 @@ import org.apache.logging.log4j.Logger;
 @Mod(NoitaCraft.MOD_ID)
 public class NoitaCraft {
 
+    public static final String SOMETHING =
+            "Verum sine mendacio, certum, et verissimum.\n" +
+            "Quod est inferius, est sicut quod est superius.\n" +
+            "Et quod est superius, est sicut quod est inferius, ad perpetranda miracula rei unius.\n" +
+            "Et sicut res omnes fuerunt ab uno, meditatione [sic] unius, sic omnes res natae ab hac una re, adaptatione.\n" +
+            "Pater eius est Sol, mater eius est Luna.\n" +
+            "Portavit illud ventus in ventre suo.\n" +
+            "Nutrix eius terra est.\n" +
+            "Pater omnis telesmi totius mundi est hic.\n" +
+            "Vis eius integra est, si versa fuerit in terram.\n" +
+            "Separabis terram ab igne, subtile ab spisso, suaviter cum magno ingenio.\n" +
+            "Ascendit a terra in coelum, iterumque descendit in terram, et recipit vim superiorum et inferiorum.\n" +
+            "Sic habebis gloriam totius mundi.\n" +
+            "Ideo fugiet a te omnis obscuritas.\n" +
+            "Haec est totius fortitudinis fortitudo fortis, quia vincet omnem rem subtilem, omnemque solidam penetrabit.\n" +
+            "Sic mundus creatus est.\n" +
+            "Hinc erunt adaptationes mirabiles, quarum modus hic est.\n" +
+            "Itaque vocatus sum Hermes Trismegistus, habens tres partes philosophiae totius mundi.\n" +
+            "Completum est, quod dixi de operatione Solis. ";
+
     public static IProxy PROXY = DistExecutor.runForDist(() -> ClientProxy::new, () -> ServerProxy::new);
 
     public static final String MOD_ID = "noitacraft";

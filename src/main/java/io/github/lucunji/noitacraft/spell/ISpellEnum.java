@@ -19,5 +19,7 @@ public interface ISpellEnum {
 
     int getUses();
 
+    int getCastNumber();
+
     String name();
 }

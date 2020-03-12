@@ -2,19 +2,17 @@ package io.github.lucunji.noitacraft.util;
 
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
 import io.github.lucunji.noitacraft.spell.SpellManager;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
+import net.minecraft.entity.Entity;
 import net.minecraft.nbt.ListNBT;
 import net.minecraft.nbt.StringNBT;
 import net.minecraft.world.World;
 import org.apache.logging.log4j.LogManager;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CastHelper {
-    public static boolean cast(List<ISpellEnum> castList, PlayerEntity player, World worldIn, @Nullable ItemStack wandStack) {
+    public static boolean cast(List<ISpellEnum> castList, Entity caster, World worldIn) {
         return false;
     }
 
