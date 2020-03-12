@@ -74,7 +74,7 @@ public class WandItem extends BaseItem {
         if (property == null) {
             return super.getDurabilityForDisplay(stack);
         } else {
-            return 1.0 - (double) property.mana / (double) property.manaMax;
+            return 1.0 - (double) property.getMana() / (double) property.getManaMax();
         }
     }
 
@@ -90,26 +90,25 @@ public class WandItem extends BaseItem {
 
     private static void cast(World world, PlayerEntity caster, ItemStack wandStack) {
         WandProperty wandProperty = WandProperty.getPropertyNotNull(wandStack, caster.getRNG());
-        if (wandProperty.cooldown > 0) return;
+        if (wandProperty.getCooldown() > 0) return;
         WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandProperty, new WandInventory(wandStack));
         castingHandler.cast(world, caster).forEach(world::addEntity);
-        wandProperty.writeProperty();
     }
 
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (entityIn instanceof PlayerEntity) {
             WandProperty wandProperty = WandProperty.getPropertyNotNull(stack, ((PlayerEntity) entityIn).getRNG());
-            boolean needWrite = false;
-            if (wandProperty.cooldown > 0) {
-                --wandProperty.cooldown;
-                needWrite = true;
+            boolean flush = false;
+            if (wandProperty.getCooldown() > 0) {
+                wandProperty.setCooldown(wandProperty.getCooldown() - 1, false);
+                flush = true;
             }
-            if (wandProperty.mana < wandProperty.manaMax && worldIn.getGameTime() % 20 == 0) {
-                wandProperty.mana = Math.min(wandProperty.manaMax, wandProperty.mana + wandProperty.manaChargeSpeed);
-                needWrite = true;
+            if (wandProperty.getMana() < wandProperty.getManaMax() && worldIn.getGameTime() % 20 == 0) {
+                wandProperty.setMana(wandProperty.getMana() + wandProperty.getManaChargeSpeed(), false);
+                flush = true;
             }
-            if (needWrite) wandProperty.writeProperty();
+            if (flush) wandProperty.writeProperty();
         }
     }
 

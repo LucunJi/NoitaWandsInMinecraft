@@ -1,11 +1,15 @@
 package io.github.lucunji.noitacraft.entity.spell;
 
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
+import io.github.lucunji.noitacraft.spell.ProjectileSpell;
+import io.github.lucunji.noitacraft.spell.SpellTree;
+import io.github.lucunji.noitacraft.spell.iterator.ProjectileSpellPoolIterator;
 import io.github.lucunji.noitacraft.util.CastHelper;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
@@ -27,13 +31,14 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     protected boolean inGround;
     protected int age;
 
-    protected List<ISpellEnum> castList1 = null;
-    protected List<ISpellEnum> castList2 = null;
-    protected boolean casted = false;
+    protected List<ISpellEnum> castList;
+    protected boolean casted;
 
     public SpellEntityBase(EntityType<? extends SpellEntityBase> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.age = 0;
+        this.castList = null;
+        this.casted = false;
     }
 
     public abstract void shoot(Entity shooter, float pitch, float yaw, float velocity, float inaccuracy);
@@ -50,11 +55,8 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         if (compound.contains("Age")) this.age = compound.getInt("Age");
 
         if (compound.contains("Casted")) this.casted = compound.getBoolean("Casted");
-        if (compound.contains("CastList1")) {
-            this.castList1 = CastHelper.spellListFromNBT(compound.getList("CastList1", 8));
-        }
-        if (compound.contains("CastList2")) {
-            this.castList2 = CastHelper.spellListFromNBT(compound.getList("CastList2", 8));
+        if (compound.contains("CastList")) {
+            this.castList = CastHelper.spellListFromNBT(compound.getList("CastList", 8));
         }
     }
 
@@ -64,12 +66,9 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         compound.putBoolean("inGround", inGround);
         compound.putInt("Age", this.age);
 
-        compound.putBoolean("Casted", this.casted);
-        if (this.castList1 != null) {
-            compound.put("CastList1", CastHelper.spellNBTFromList(castList1));
-        }
-        if (this.castList2 != null) {
-            compound.put("CastList2", CastHelper.spellNBTFromList(castList2));
+        if (this.castList != null) {
+            compound.putBoolean("Casted", this.casted);
+            compound.put("CastList", CastHelper.spellNBTFromList(castList));
         }
     }
 
@@ -100,11 +99,42 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         super.tick();
         ++this.age;
         if (this.age > this.getExpireAge()) onAgeExpire();
-        if (this.canCast() && !this.casted && this.age > this.getAgeToCast()) {
-
+        if (!this.casted && this.age > this.getAgeToCast()) {
+            this.casted = true;
+            this.castSpell();
         }
 
         this.generateParticles();
+    }
+
+    public void castSpell() {
+        if (this.world.isRemote()) return;
+        ProjectileSpellPoolIterator iterator = new ProjectileSpellPoolIterator(castList);
+        while (iterator.hasNext()) {
+            SpellTree spellTree = new SpellTree(iterator);
+            spellTree.flatten().forEach((iSpellEnumListPair -> {
+                ISpellEnum iSpellEnum = iSpellEnumListPair.getFirst();
+                List<ISpellEnum> spellEnumList = iSpellEnumListPair.getSecond();
+
+                if (iSpellEnum instanceof ProjectileSpell) {
+                    ProjectileSpell projectileSpell = (ProjectileSpell) iSpellEnum;
+                    SpellEntityBase entityBase = projectileSpell.entitySummoner().apply(world, (PlayerEntity)this.caster);
+
+                    float speed = 0;
+                    int speedMin = projectileSpell.getSpeedMin();
+                    int speedMax = projectileSpell.getSpeedMax();
+                    if (speedMin < speedMax)
+                        speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
+                    speed += 200f;
+                    speed /= 600f;
+
+                    entityBase.shoot(caster, -90, -90, speed, 1.0f);
+                    entityBase.setCastList(spellEnumList);
+                    entityBase.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
+                    this.world.addEntity(entityBase);
+                }
+            }));
+        }
     }
 
     protected abstract int getExpireAge();
@@ -137,5 +167,9 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
 
     protected int getAgeToCast() {
         return Integer.MAX_VALUE;
+    }
+
+    public void setCastList(List<ISpellEnum> castList) {
+        this.castList = castList;
     }
 }

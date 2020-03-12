@@ -38,6 +38,8 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
 
     @Override
     protected void onHit(RayTraceResult rayTraceResult) {
+        super.onHit(rayTraceResult);
+
         if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
             Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
             if (entityHit.getUniqueID().equals(this.casterUUID)) return;

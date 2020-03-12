@@ -47,6 +47,8 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
 
     @Override
     protected void onHit(RayTraceResult rayTraceResult) {
+        super.onHit(rayTraceResult);
+
         if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
             Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
             if (entityHit.getUniqueID().equals(this.casterUUID)) return;
@@ -81,7 +83,7 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
                     motion = new Vec3d(motion.getX(), motion.getY(), -motion.getZ());
                     break;
             }
-            this.setMotion(motion.getX() * 0.8, motion.getY() * 0.7, motion.getZ() * 0.8);
+            this.setMotion(motion.scale(0.6));
         }
     }
 

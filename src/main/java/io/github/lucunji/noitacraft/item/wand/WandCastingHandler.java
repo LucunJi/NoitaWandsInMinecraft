@@ -2,9 +2,11 @@ package io.github.lucunji.noitacraft.item.wand;
 
 import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
 import io.github.lucunji.noitacraft.inventory.WandInventory;
-import io.github.lucunji.noitacraft.item.SpellItem;
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
+import io.github.lucunji.noitacraft.spell.iterator.OrderedWandSpellPoolIterator;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
+import io.github.lucunji.noitacraft.spell.iterator.SpellPoolIterator;
+import io.github.lucunji.noitacraft.spell.SpellTree;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
@@ -26,57 +28,56 @@ public class WandCastingHandler {
     }
 
     public List<SpellEntityBase> cast(World world, PlayerEntity caster) {
-        if (wandProperty.isShuffle) {
+        if (wandProperty.isShuffle()) {
             caster.sendMessage(new StringTextComponent("§cShuffling wand is not supported yet!§r"));
             return new ArrayList<>();
         }
 
         List<SpellEntityBase> entities = new ArrayList<>();
-
         SpellPoolIterator spellPoolIterator = getSpellPoll(wandProperty, wandInventory);
 
-        int accumulatedRechargeTime = 0, accumulatedCastDelay = 0;
+        SpellTree spellTree = new SpellTree(spellPoolIterator, wandProperty.getManaMax());
+        spellTree.flatten().forEach((iSpellEnumListPair -> {
+            ISpellEnum iSpellEnum = iSpellEnumListPair.getFirst();
+            List<ISpellEnum> spellEnumList = iSpellEnumListPair.getSecond();
 
-        if (spellPoolIterator.hasNext()) {
-            ItemStack spellStack = spellPoolIterator.next();
-            if (spellStack.getItem() instanceof SpellItem) {
-                ISpellEnum spell = ((SpellItem) spellStack.getItem()).getSpell();
-                if (spell.getManaDrain() <= wandProperty.mana) {
-                    if (spell instanceof ProjectileSpell) {
-                        ProjectileSpell projectileProjectileSpell = (ProjectileSpell) spell;
-                        SpellEntityBase projectileEntity = projectileProjectileSpell.entitySummoner().apply(world, caster);
-                        float speed = 0.0f;
-                        int speedMin = projectileProjectileSpell.getSpeedMin();
-                        int speedMax = projectileProjectileSpell.getSpeedMax();
-                        if (speedMin < speedMax)
-                            speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
-                        speed += 200f;
-                        speed /= 600f;
-                        projectileEntity.shoot(caster, caster.rotationPitch, caster.rotationYaw, speed, 1.0f);
-                        entities.add(projectileEntity);
-                    }
-                    accumulatedRechargeTime += spell.getRechargeTime();
-                    accumulatedCastDelay += spell.getCastDelay();
-                    wandProperty.mana -= spell.getManaDrain();
-                }
+            if (iSpellEnum instanceof ProjectileSpell) {
+                ProjectileSpell projectileSpell = (ProjectileSpell) iSpellEnum;
+                SpellEntityBase entityBase = projectileSpell.entitySummoner().apply(world, caster);
+
+                float speed = 0;
+                int speedMin = projectileSpell.getSpeedMin();
+                int speedMax = projectileSpell.getSpeedMax();
+                if (speedMin < speedMax)
+                    speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
+                speed += 200f;
+                speed /= 600f;
+
+                entityBase.shoot(caster, caster.rotationPitch, caster.rotationYaw, speed, 1.0f);
+                entityBase.setCastList(spellEnumList);
+                entities.add(entityBase);
             }
-        }
+        }));
+
+        int coolDown = spellTree.getTotalDelay() + spellTree.getTotalRechargeTime() + wandProperty.getCastDelay();
         if (!spellPoolIterator.hasNext()) {
             spellPoolIterator.reset();
-            wandProperty.cooldown = Math.max(wandProperty.rechargeTime + accumulatedRechargeTime, wandProperty.castDelay + accumulatedCastDelay);
-        } else {
-            wandProperty.cooldown = wandProperty.castDelay + accumulatedCastDelay;
         }
+        if (spellPoolIterator.getResetCount() > 0) {
+            coolDown += wandProperty.getRechargeTime();
+        }
+        wandProperty.setCooldown(coolDown, false);
+        wandProperty.setMana(wandProperty.getMana() - spellTree.getTotalMana(), false);
+        wandProperty.writeProperty();
+
         return entities;
     }
 
     private SpellPoolIterator getSpellPoll(WandProperty wandProperty, WandInventory wandInventory) {
-        if (wandProperty.isShuffle) {
+        if (wandProperty.isShuffle()) {
             return null;
         } else {
-            return new OrderedSpellPoolIterator(wandProperty, wandInventory);
+            return new OrderedWandSpellPoolIterator(wandProperty, wandInventory);
         }
     }
-
-
 }

@@ -159,5 +159,4 @@ public enum ProjectileSpell implements ISpellEnum {
         return entitySummoner;
     }
 
-
 }

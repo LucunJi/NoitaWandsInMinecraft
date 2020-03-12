@@ -10,18 +10,18 @@ import java.util.Random;
 public class WandProperty {
     private static final Random RNG = new Random(0);
 
-    protected boolean isShuffle;
-    protected byte casts;
-    protected int castDelay;
-    protected int rechargeTime;
-    protected int manaMax;
-    protected int manaChargeSpeed;
-    protected byte capacity;
-    protected float spread;
+    private boolean isShuffle;
+    private byte casts;
+    private int castDelay;
+    private int rechargeTime;
+    private int manaMax;
+    private int manaChargeSpeed;
+    private byte capacity;
+    private float spread;
 
-    protected int cooldown;
-    protected int mana;
-    protected int numberCasted;
+    private int cooldown;
+    private int mana;
+    private int numberCasted;
 
     private final ItemStack wandStack;
 
@@ -128,5 +128,68 @@ public class WandProperty {
         wandNBT.putInt("Cooldown", this.cooldown);
         wandNBT.putInt("Mana", this.mana);
         wandNBT.putInt("NumberCasted", this.numberCasted);
+    }
+
+    public boolean isShuffle() {
+        return this.isShuffle;
+    }
+
+    public int getCooldown() {
+        return cooldown;
+    }
+
+    public int getMana() {
+        return mana;
+    }
+
+    public int getManaMax() {
+        return manaMax;
+    }
+
+    public int getManaChargeSpeed() {
+        return manaChargeSpeed;
+    }
+
+    public int getCastDelay() {
+        return castDelay;
+    }
+
+    public int getRechargeTime() {
+        return rechargeTime;
+    }
+
+    public int getNumberCasted() {
+        return numberCasted;
+    }
+
+    public byte getCapacity() {
+        return capacity;
+    }
+
+    public void setMana(int mana) {
+        this.setMana(mana, true);
+    }
+
+    public void setMana(int mana, boolean flush) {
+        this.mana = MathHelper.clamp(mana, 0, manaMax);
+        if(flush) this.writeProperty();
+    }
+
+    public void setCooldown(int cooldown) {
+        this.setCooldown(cooldown, true);
+    }
+
+    public void setCooldown(int cooldown, boolean flush) {
+        this.cooldown = Math.max(cooldown, 0);
+        if (flush) this.writeProperty();
+    }
+
+    public void setNumberCasted(int numberCasted) {
+        this.setNumberCasted(numberCasted, true);
+    }
+
+    public void setNumberCasted(int numberCasted, boolean flush) {
+        this.numberCasted = numberCasted;
+        if (flush) this.writeProperty();
     }
 }

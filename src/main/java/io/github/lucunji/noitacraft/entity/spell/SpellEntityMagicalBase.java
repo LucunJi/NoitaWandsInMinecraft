@@ -138,5 +138,9 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
         }
     }
 
-    protected abstract void onHit(RayTraceResult traceResult);
+    protected void onHit(RayTraceResult traceResult) {
+        if (!this.casted) {
+            this.castSpell();
+        }
+    }
 }
