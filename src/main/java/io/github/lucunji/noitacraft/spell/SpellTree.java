@@ -2,12 +2,12 @@ package io.github.lucunji.noitacraft.spell;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lucunji.noitacraft.spell.iterator.SpellPoolIterator;
-import io.github.lucunji.noitacraft.spell.ISpellEnum;
-import io.github.lucunji.noitacraft.spell.ModifierSpell;
 import io.github.lucunji.noitacraft.util.IntHolder;
 
 import javax.annotation.Nullable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class SpellTree {
@@ -36,7 +36,11 @@ public class SpellTree {
                 iterator.reset();
                 resetDone = true;
             }
-            spellEnum = iterator.next();
+            if (iterator.hasNext()) {
+                spellEnum = iterator.next();
+            } else {
+                break;
+            }
 
             int manaCost = spellEnum.getManaDrain();
             if (manaCost > manaLimit.value) {
@@ -50,7 +54,7 @@ public class SpellTree {
             this.totalMana += manaCost;
 
             SpellNode child = new SpellNode(spellEnum, node);
-            feed(child, iterator, resetDone, manaLimit);
+            if (spellEnum.getCastNumber() > 0) feed(child, iterator, resetDone, manaLimit);
             node.siblings.add(child);
             if (spellEnum instanceof ModifierSpell) {
                 peerCount += spellEnum.getCastNumber();

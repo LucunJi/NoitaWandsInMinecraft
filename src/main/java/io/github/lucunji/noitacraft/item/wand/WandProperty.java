@@ -23,6 +23,8 @@ public class WandProperty {
     private int mana;
     private int numberCasted;
 
+    private int textureID;
+
     private final ItemStack wandStack;
 
     private WandProperty(ItemStack wandStack, Random random) {
@@ -40,8 +42,11 @@ public class WandProperty {
         this.cooldown = 0;
         this.mana = manaMax;
         this.numberCasted = 0;
+
+        this.textureID = random.nextInt(10);
     }
 
+    @SuppressWarnings("ConstantConditions")
     @Nullable
     public static WandProperty getPropertyNullable(ItemStack wandStack) {
         if (wandStack.hasTag()) {
@@ -60,6 +65,8 @@ public class WandProperty {
                 if (!wandTag.contains("Cooldown")) return null;
                 if (!wandTag.contains("Mana")) return null;
                 if (!wandTag.contains("NumberCasted")) return null;
+
+                if (!wandTag.contains("TextureID")) return null;
                 return getPropertyNotNull(wandStack, RNG);
             } else {
                 return null;
@@ -73,6 +80,7 @@ public class WandProperty {
      * Get properties from an item stack of wand.
      * @return a WandProperty. Missing tags will be randomly initialized.
      */
+    @SuppressWarnings("ConstantConditions")
     public static WandProperty getPropertyNotNull(ItemStack wandStack, Random random) {
         boolean needFlush = false;
         WandProperty property = new WandProperty(wandStack, random);
@@ -92,6 +100,8 @@ public class WandProperty {
                 if (wandTag.contains("Cooldown")) property.cooldown = wandTag.getInt("Cooldown"); else needFlush = true;
                 if (wandTag.contains("Mana")) property.mana = wandTag.getInt("Mana"); else needFlush = true;
                 if (wandTag.contains("NumberCasted")) property.numberCasted = wandTag.getInt("NumberCasted"); else needFlush = true;
+
+                if (wandTag.contains("TextureID")) property.textureID = wandTag.getInt("TextureID"); else needFlush = true;
             } else {
                 needFlush = true;
             }
@@ -128,6 +138,8 @@ public class WandProperty {
         wandNBT.putInt("Cooldown", this.cooldown);
         wandNBT.putInt("Mana", this.mana);
         wandNBT.putInt("NumberCasted", this.numberCasted);
+
+        wandNBT.putInt("TextureID", this.textureID);
     }
 
     public boolean isShuffle() {

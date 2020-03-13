@@ -8,4 +8,7 @@ public class IntHolder {
     public IntHolder(int val) {
         value = val;
     }
+    public void set(int newVal) {
+        this.value = newVal;
+    }
 }

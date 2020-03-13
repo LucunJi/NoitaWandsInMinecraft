@@ -1,9 +1,11 @@
 package io.github.lucunji.noitacraft.item.wand;
 
+import io.github.lucunji.noitacraft.NoitaCraft;
 import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.inventory.container.WandContainer;
 import io.github.lucunji.noitacraft.item.BaseItem;
 import io.github.lucunji.noitacraft.item.NoitaItems;
+import io.github.lucunji.noitacraft.util.NBTHelper;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -17,6 +19,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -32,6 +35,11 @@ import java.util.List;
 public class WandItem extends BaseItem {
     public WandItem(Properties properties) {
         super(properties.maxStackSize(1));
+        this.addPropertyOverride(new ResourceLocation(NoitaCraft.MOD_ID, "texture_id"), (itemStack, world, entity) ->
+                NBTHelper.getCompound(itemStack).flatMap(stackTag ->
+                    NBTHelper.getCompound(stackTag, "Wand").flatMap(compoundNBT ->
+                            NBTHelper.getInt(compoundNBT, "TextureID"))).orElse(-1)
+        );
     }
 
     @Override
@@ -65,7 +73,7 @@ public class WandItem extends BaseItem {
 
     @Override
     public boolean showDurabilityBar(ItemStack stack) {
-        return true;
+        return stack.hasTag();
     }
 
     @Override
@@ -112,34 +120,28 @@ public class WandItem extends BaseItem {
         }
     }
 
+
     @OnlyIn(Dist.CLIENT)
     @Override
     public void addInformation(ItemStack wandStack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         List<ITextComponent> wandPropertyInfo = new ArrayList<>();
-        boolean uninitialized = false;
         if (wandStack.hasTag()) {
             CompoundNBT wandTag = wandStack.getTag();
             if (wandTag.contains("Wand")) {
                 wandTag = wandTag.getCompound("Wand");
-                if (wandTag.contains("Shuffle")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.shuffle", String.valueOf(wandTag.getBoolean("Shuffle")))); else uninitialized = true;
-                if (wandTag.contains("Casts")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.casts", wandTag.getByte("Casts"))); else uninitialized = true;
-                if (wandTag.contains("CastDelay")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.cast_delay", wandTag.getInt("CastDelay") / 20.0)); else uninitialized = true;
-                if (wandTag.contains("RechargeTime")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.recharge_time", wandTag.getInt("RechargeTime") / 20.0)); else uninitialized = true;
-                if (wandTag.contains("ManaMax")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_max", wandTag.getInt("ManaMax"))); else uninitialized = true;
-                if (wandTag.contains("ManaChargeSpeed")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_charge_speed", wandTag.getInt("ManaChargeSpeed"))); else uninitialized = true;
-                if (wandTag.contains("Capacity")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.capacity", wandTag.getByte("Capacity"))); else uninitialized = true;
-                if (wandTag.contains("Spread")) wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.spread", wandTag.getFloat("Spread"))); else uninitialized = true;
-            } else {
-                uninitialized = true;
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.shuffle", String.valueOf(wandTag.getBoolean("Shuffle"))));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.casts", wandTag.getByte("Casts")));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.cast_delay", wandTag.getInt("CastDelay") / 20.0));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.recharge_time", wandTag.getInt("RechargeTime") / 20.0));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_max", wandTag.getInt("ManaMax")));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_charge_speed", wandTag.getInt("ManaChargeSpeed")));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.capacity", wandTag.getByte("Capacity")));
+                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.spread", wandTag.getFloat("Spread")));
+                tooltip.addAll(wandPropertyInfo);
+                return;
             }
-        } else {
-            uninitialized = true;
         }
-        if (uninitialized) {
-            tooltip.add(new TranslationTextComponent("desc.noitacraft.wand.uninitialized"));
-        } else {
-            tooltip.addAll(wandPropertyInfo);
-        }
+        tooltip.add(new TranslationTextComponent("desc.noitacraft.wand.uninitialized"));
     }
 
     private static class WandContainerProvider implements INamedContainerProvider {

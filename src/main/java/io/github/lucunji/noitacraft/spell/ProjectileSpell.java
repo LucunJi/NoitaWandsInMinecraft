@@ -26,11 +26,33 @@ public enum ProjectileSpell implements ISpellEnum {
             (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world)
     ),
     SPARK_BOLT_TRIGGER(
-            SPARK_BOLT,
+            SpellType.PROJECTILE_MAGICAL,
+            10,
+            new DamageCollection(3.0f, 0, 2, 0, 0),
+            750,
+            850,
+            1,
+            0,
+            0,
+            -1,
+            0.05f,
+            -1,
+            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world),
             1
     ),
     SPARK_BOLT_TRIGGER_DOUBLE(
-            SPARK_BOLT,
+            SpellType.PROJECTILE_MAGICAL,
+            15,
+            new DamageCollection(3.75f, 10, 12, 0, 0),
+            650,
+            750,
+            1,
+            0,
+            0,
+            -1,
+            0.05f,
+            -1,
+            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT_DOUBLE_TRIGGER, playerEntity, world),
             2
     ),
     ENERGY_SPHERE(
@@ -79,14 +101,12 @@ public enum ProjectileSpell implements ISpellEnum {
 
     private final BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner;
 
-    private int castNumber;
-
-    ProjectileSpell(ProjectileSpell spellBase, int castNumber) {
-        this(spellBase.spellType, spellBase.manaDrain, spellBase.damageCollection, spellBase.speedMin, spellBase.speedMax, spellBase.castDelay, spellBase.rechargeTime, spellBase.spread, spellBase.spreadModifier, spellBase.criticalChance, spellBase.uses, spellBase.entitySummoner);
-        this.castNumber = castNumber;
-    }
+    private final int castNumber;
 
     ProjectileSpell(SpellType spellType, int manaDrain, DamageCollection damageCollection, int speedMin, int speedMax, int castDelay, int rechargeTime, float spread, float spreadModifier, float criticalChance, int uses, BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner) {
+        this(spellType, manaDrain, damageCollection, speedMin, speedMax, castDelay, rechargeTime, spread, spreadModifier, criticalChance, uses, entitySummoner, 0);
+    }
+    ProjectileSpell(SpellType spellType, int manaDrain, DamageCollection damageCollection, int speedMin, int speedMax, int castDelay, int rechargeTime, float spread, float spreadModifier, float criticalChance, int uses, BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner, int castNumber) {
         this.spellType = spellType;
         this.manaDrain = manaDrain;
         this.damageCollection = damageCollection;
@@ -100,7 +120,7 @@ public enum ProjectileSpell implements ISpellEnum {
         this.uses = uses;
         this.entitySummoner = entitySummoner;
         SpellManager.SPELL_MAP.put(this.name(), this);
-        this.castNumber = 0;
+        this.castNumber = castNumber;
     }
 
     @Override

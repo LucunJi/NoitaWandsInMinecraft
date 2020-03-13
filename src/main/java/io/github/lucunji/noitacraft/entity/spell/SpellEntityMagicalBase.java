@@ -1,16 +1,18 @@
 package io.github.lucunji.noitacraft.entity.spell;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.util.math.*;
-import net.minecraft.util.math.shapes.VoxelShape;
+import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceContext;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SpellEntityMagicalBase extends SpellEntityBase {
-    public SpellEntityMagicalBase(EntityType<? extends SpellEntityMagicalBase> entityTypeIn, World worldIn) {
+    public SpellEntityMagicalBase(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
     }
 
@@ -37,91 +39,48 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
     @Override
     public void tick() {
         super.tick();
+
+        RayTraceResult rayTraceResult = ProjectileHelper.rayTrace(this, this.getBoundingBox().expand(this.getMotion()).grow(1), entity ->
+                !entity.isSpectator() && entity.canBeCollidedWith() && entity != this.caster,
+                RayTraceContext.BlockMode.OUTLINE, true);
+        if (rayTraceResult.getType() != RayTraceResult.Type.MISS) {
+            this.onHit(rayTraceResult);
+            this.isAirBorne = true;
+        }
+
         Vec3d motionVec = this.getMotion();
-        if (this.prevRotationPitch == 0.0F && this.prevRotationYaw == 0.0F) {
-            float f = MathHelper.sqrt(horizontalMag(motionVec));
-            this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
-            this.rotationPitch = (float)(MathHelper.atan2(motionVec.y, f) * (double)(180F / (float)Math.PI));
-            this.prevRotationYaw = this.rotationYaw;
-            this.prevRotationPitch = this.rotationPitch;
+        Vec3d positionVec = this.getPositionVec();
+
+        float f1 = MathHelper.sqrt(horizontalMag(motionVec));
+        this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
+        this.rotationPitch = (float)(MathHelper.atan2(motionVec.y, f1) * (double)(180F / (float)Math.PI));
+        while (this.rotationPitch - this.prevRotationPitch < -180.0F) {
+            this.prevRotationPitch -= 360.0F;
+        }
+        while(this.rotationPitch - this.prevRotationPitch >= 180.0F) {
+            this.prevRotationPitch += 360.0F;
+        }
+        while(this.rotationYaw - this.prevRotationYaw < -180.0F) {
+            this.prevRotationYaw -= 360.0F;
+        }
+        while(this.rotationYaw - this.prevRotationYaw >= 180.0F) {
+            this.prevRotationYaw += 360.0F;
+        }
+        this.rotationPitch = MathHelper.lerp(0.2F, this.prevRotationPitch, this.rotationPitch);
+        this.rotationYaw = MathHelper.lerp(0.2F, this.prevRotationYaw, this.rotationYaw);
+
+        float motionScale = 0.99F;
+        if (this.isInWater()) {
+            motionScale = this.getWaterDrag();
         }
 
-        BlockPos blockpos = new BlockPos(this);
-        BlockState blockstate = this.world.getBlockState(blockpos);
-        if (!blockstate.isAir(this.world, blockpos)) {
-            VoxelShape voxelshape = blockstate.getCollisionShape(this.world, blockpos);
-            if (!voxelshape.isEmpty()) {
-                Vec3d vec3d1 = this.getPositionVec();
+        Vec3d nextMotionVec = motionVec.scale(motionScale);
+        Vec3d nextPositionVec = motionVec.add(positionVec);
 
-                for(AxisAlignedBB axisalignedbb : voxelshape.toBoundingBoxList()) {
-                    if (axisalignedbb.offset(blockpos).contains(vec3d1)) {
-                        this.inGround = true;
-                        break;
-                    }
-                }
-            }
-        }
+        this.setMotion(nextMotionVec.getX(), motionVec.getY() - this.getGravity(), motionVec.getZ());
+        this.setPosition(nextPositionVec.getX(), nextPositionVec.getY(), nextPositionVec.getZ());
 
-        if (this.inGround) {
-            this.inGround = false;
-            this.setMotion(motionVec.mul(this.rand.nextFloat() * 0.2F, this.rand.nextFloat() * 0.2F, this.rand.nextFloat() * 0.2F));
-
-        } else {
-            Vec3d positionVec = this.getPositionVec();
-            Vec3d positionVecNext = positionVec.add(motionVec);
-
-            RayTraceResult blockRayTraceResult = this.world.rayTraceBlocks(new RayTraceContext(positionVec, positionVecNext, RayTraceContext.BlockMode.COLLIDER, RayTraceContext.FluidMode.NONE, this));
-            if (blockRayTraceResult.getType() != RayTraceResult.Type.MISS) {
-                positionVecNext = blockRayTraceResult.getHitVec();
-            }
-
-            EntityRayTraceResult entityRayTraceResult = this.rayTraceEntities(positionVec, positionVecNext);
-            if (entityRayTraceResult != null) {
-                blockRayTraceResult = entityRayTraceResult;
-            }
-
-            if (blockRayTraceResult.getType() != RayTraceResult.Type.MISS) {
-                this.onHit(blockRayTraceResult);
-                this.isAirBorne = true;
-            }
-
-            motionVec = this.getMotion();
-            double nextX = this.getPosX() + motionVec.x;
-            double nextY = this.getPosY() + motionVec.y;
-            double nextZ = this.getPosZ() + motionVec.z;
-            float f1 = MathHelper.sqrt(horizontalMag(motionVec));
-            this.rotationYaw = (float)(MathHelper.atan2(motionVec.x, motionVec.z) * (double)(180F / (float)Math.PI));
-
-            this.rotationPitch = (float)(MathHelper.atan2(motionVec.y, f1) * (double)(180F / (float)Math.PI));
-            while (this.rotationPitch - this.prevRotationPitch < -180.0F) {
-                this.prevRotationPitch -= 360.0F;
-            }
-
-            while(this.rotationPitch - this.prevRotationPitch >= 180.0F) {
-                this.prevRotationPitch += 360.0F;
-            }
-
-            while(this.rotationYaw - this.prevRotationYaw < -180.0F) {
-                this.prevRotationYaw -= 360.0F;
-            }
-
-            while(this.rotationYaw - this.prevRotationYaw >= 180.0F) {
-                this.prevRotationYaw += 360.0F;
-            }
-
-            this.rotationPitch = MathHelper.lerp(0.2F, this.prevRotationPitch, this.rotationPitch);
-            this.rotationYaw = MathHelper.lerp(0.2F, this.prevRotationYaw, this.rotationYaw);
-            float motionScale = 0.99F;
-            if (this.isInWater()) {
-                motionScale = this.getWaterDrag();
-            }
-
-            motionVec = motionVec.scale(motionScale);
-            this.setMotion(motionVec.x, motionVec.getY() - this.getGravity(), motionVec.getZ());
-
-            this.setPosition(nextX, nextY, nextZ);
-            this.doBlockCollisions();
-        }
+        this.doBlockCollisions(); // Call BlockState.onEntityCollision(), such as bubble columns, web, cactus
     }
 
     @Override
@@ -135,12 +94,6 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
             this.prevRotationPitch = this.rotationPitch;
             this.prevRotationYaw = this.rotationYaw;
             this.setLocationAndAngles(this.getPosX(), this.getPosY(), this.getPosZ(), this.rotationYaw, this.rotationPitch);
-        }
-    }
-
-    protected void onHit(RayTraceResult traceResult) {
-        if (!this.casted) {
-            this.castSpell();
         }
     }
 }

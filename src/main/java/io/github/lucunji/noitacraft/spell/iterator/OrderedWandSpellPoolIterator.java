@@ -42,6 +42,8 @@ public class OrderedWandSpellPoolIterator extends SpellPoolIterator {
     @Override
     public void reset() {
         ++resetCount;
+        this.next = 0;
+        findNextIndex();
         wandProperty.setNumberCasted(0);
     }
 

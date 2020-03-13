@@ -5,22 +5,25 @@ import io.github.lucunji.noitacraft.spell.ProjectileSpell;
 import io.github.lucunji.noitacraft.spell.SpellTree;
 import io.github.lucunji.noitacraft.spell.iterator.ProjectileSpellPoolIterator;
 import io.github.lucunji.noitacraft.util.CastHelper;
+import io.github.lucunji.noitacraft.util.MathHelper;
+import io.github.lucunji.noitacraft.util.NBTHelper;
+import io.github.lucunji.noitacraft.util.NBTHelper.NBTTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.entity.projectile.ProjectileHelper;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.EntityRayTraceResult;
+import net.minecraft.util.math.BlockRayTraceResult;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -34,14 +37,13 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     protected List<ISpellEnum> castList;
     protected boolean casted;
 
-    public SpellEntityBase(EntityType<? extends SpellEntityBase> entityTypeIn, World worldIn) {
+    public SpellEntityBase(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.age = 0;
-        this.castList = null;
+        this.castList = new ArrayList<>();
         this.casted = false;
     }
 
-    public abstract void shoot(Entity shooter, float pitch, float yaw, float velocity, float inaccuracy);
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
@@ -51,13 +53,11 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
                 ((ServerWorld) this.world).getEntityByUuid(this.casterUUID);
             }
         }
-        if (compound.contains("inGround")) this.inGround = compound.getBoolean("inGround");
-        if (compound.contains("Age")) this.age = compound.getInt("Age");
+        this.inGround = compound.getBoolean("inGround");
+        this.age = compound.getInt("Age");
 
-        if (compound.contains("Casted")) this.casted = compound.getBoolean("Casted");
-        if (compound.contains("CastList")) {
-            this.castList = CastHelper.spellListFromNBT(compound.getList("CastList", 8));
-        }
+        this.casted = NBTHelper.getBoolean(compound, "Casted").orElse(true);
+        this.castList = CastHelper.spellListFromNBT(compound.getList("CastList", NBTTypes.STRING.ordinal()));
     }
 
     @Override
@@ -66,32 +66,23 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         compound.putBoolean("inGround", inGround);
         compound.putInt("Age", this.age);
 
-        if (this.castList != null) {
+        if (this.castList != null && !this.castList.isEmpty()) {
             compound.putBoolean("Casted", this.casted);
             compound.put("CastList", CastHelper.spellNBTFromList(castList));
         }
     }
 
     @Override
-    protected void registerData() {
-
-    }
+    protected void registerData() {}
 
     @Override
-    public void setFire(int seconds) {
+    public void setFire(int seconds) {}
 
-    }
+    public abstract void shoot(Entity shooter, float pitch, float yaw, float velocity, float inaccuracy);
 
     @Override
     public IPacket<?> createSpawnPacket() {
         return NetworkHooks.getEntitySpawningPacket(this);
-    }
-
-    @Nullable
-    protected EntityRayTraceResult rayTraceEntities(Vec3d startVec, Vec3d endVec) {
-        return ProjectileHelper.rayTraceEntities(this.world, this, startVec, endVec,
-                this.getBoundingBox().expand(this.getMotion()).grow(1.0D),
-                (entity) -> !entity.isSpectator() && entity.isAlive() && entity.canBeCollidedWith() && (entity != this.caster));
     }
 
     @Override
@@ -99,16 +90,26 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         super.tick();
         ++this.age;
         if (this.age > this.getExpireAge()) onAgeExpire();
-        if (!this.casted && this.age > this.getAgeToCast()) {
-            this.casted = true;
-            this.castSpell();
-        }
+//        if (!this.casted && this.age > this.getAgeToCast()) {
+//            this.casted = true;
+//            this.castSpell();
+//        }
 
         this.generateParticles();
     }
 
-    public void castSpell() {
+    protected void castSpellOnHit(RayTraceResult traceResult) {
         if (this.world.isRemote()) return;
+        if (this.castList == null || this.castList.isEmpty()) return;
+        Vec3d reflectedVec;
+        if (traceResult.getType() == RayTraceResult.Type.ENTITY) {
+            reflectedVec = this.getMotion().scale(-1);
+        } else if (traceResult.getType() == RayTraceResult.Type.BLOCK) {
+            reflectedVec = MathHelper.reflectByAxis(this.getMotion(), ((BlockRayTraceResult) traceResult).getFace().getAxis());
+        } else {
+            return;
+        }
+
         ProjectileSpellPoolIterator iterator = new ProjectileSpellPoolIterator(castList);
         while (iterator.hasNext()) {
             SpellTree spellTree = new SpellTree(iterator);
@@ -128,9 +129,9 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
                     speed += 200f;
                     speed /= 600f;
 
-                    entityBase.shoot(caster, -90, -90, speed, 1.0f);
-                    entityBase.setCastList(spellEnumList);
+                    entityBase.shoot(reflectedVec.getX(), reflectedVec.getY(), reflectedVec.getZ(), speed, 1.0f);
                     entityBase.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
+                    entityBase.setCastList(spellEnumList);
                     this.world.addEntity(entityBase);
                 }
             }));
@@ -161,15 +162,17 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         return caster;
     }
 
-    public boolean canCast() {
-        return false;
-    }
-
-    protected int getAgeToCast() {
-        return Integer.MAX_VALUE;
-    }
+//    protected int getAgeToCast() {
+//        return Integer.MAX_VALUE;
+//    }
 
     public void setCastList(List<ISpellEnum> castList) {
         this.castList = castList;
+    }
+
+    protected void onHit(RayTraceResult traceResult) {
+        if (!this.casted) {
+            this.castSpellOnHit(traceResult);
+        }
     }
 }
