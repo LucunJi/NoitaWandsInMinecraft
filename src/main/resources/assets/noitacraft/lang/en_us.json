@@ -1,5 +1,9 @@
 {
-  "itemGroup.noitacraft": "Noita Craft",
+  "itemGroup.noitacraft.wands": "Noita Craft: Wands",
+  "itemGroup.noitacraft.spells": "Noita Craft: Spells",
+  "itemGroup.noitacraft.flasks": "Noita Craft: Flasks",
+
+  "item.noitacraft.wand.starting": "§bStarting Wand§r",
 
   "_comment": "WAND PROPERTIES",
   "item.noitacraft.wand": "§bWand§r",

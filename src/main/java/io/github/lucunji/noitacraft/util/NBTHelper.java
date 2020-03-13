@@ -3,6 +3,7 @@ package io.github.lucunji.noitacraft.util;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.nbt.INBTType;
@@ -11,6 +12,7 @@ import net.minecraft.nbt.NumberNBT;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 @SuppressWarnings("ConstantConditions")
 public class NBTHelper {
@@ -134,6 +136,18 @@ public class NBTHelper {
 
     public static Optional<CompoundNBT> getCompound(ItemStack itemStack) {
         return itemStack.hasTag() ? Optional.of(itemStack.getTag()) : Optional.empty();
+    }
+
+    public static CompoundNBT makeCompound(Consumer<CompoundNBT> modifier) {
+        CompoundNBT compoundNBT = new CompoundNBT();
+        modifier.accept(compoundNBT);
+        return compoundNBT;
+    }
+
+    public static ItemStack makeItemWithTag(Item item, int count, CompoundNBT compoundNBT) {
+        ItemStack itemStack = new ItemStack(item, count);
+        itemStack.setTag(compoundNBT);
+        return itemStack;
     }
 
     private static CrashReport crashReport(CompoundNBT compoundNBT, String key, INBTType<?> type, ClassCastException e) {

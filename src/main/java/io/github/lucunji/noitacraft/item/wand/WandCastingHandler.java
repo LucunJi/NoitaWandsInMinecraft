@@ -3,10 +3,10 @@ package io.github.lucunji.noitacraft.item.wand;
 import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
 import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
-import io.github.lucunji.noitacraft.spell.iterator.OrderedWandSpellPoolIterator;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
-import io.github.lucunji.noitacraft.spell.iterator.SpellPoolIterator;
 import io.github.lucunji.noitacraft.spell.SpellTree;
+import io.github.lucunji.noitacraft.spell.iterator.OrderedWandSpellPoolIterator;
+import io.github.lucunji.noitacraft.spell.iterator.SpellPoolIterator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.StringTextComponent;
@@ -36,7 +36,7 @@ public class WandCastingHandler {
         List<SpellEntityBase> entities = new ArrayList<>();
         SpellPoolIterator spellPoolIterator = getSpellPoll(wandProperty, wandInventory);
 
-        SpellTree spellTree = new SpellTree(spellPoolIterator, wandProperty.getManaMax());
+        SpellTree spellTree = new SpellTree(spellPoolIterator, (int) wandProperty.getMana());
         spellTree.flatten().forEach((iSpellEnumListPair -> {
             ISpellEnum iSpellEnum = iSpellEnumListPair.getFirst();
             List<ISpellEnum> spellEnumList = iSpellEnumListPair.getSecond();

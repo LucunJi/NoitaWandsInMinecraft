@@ -1,5 +1,6 @@
 package io.github.lucunji.noitacraft.item;
 
+import io.github.lucunji.noitacraft.NoitaCraft;
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.item.ItemStack;
@@ -16,7 +17,7 @@ public class SpellItem extends BaseItem {
     protected final ISpellEnum spell;
 
     public SpellItem(Properties properties, ISpellEnum spell) {
-        super(properties.maxStackSize(1));
+        super(properties.maxStackSize(1).group(NoitaCraft.SETUP.SPELL_GROUP));
         this.spell = spell;
     }
 

@@ -20,7 +20,7 @@ public class WandProperty {
     private float spread;
 
     private int cooldown;
-    private int mana;
+    private float mana;
     private int numberCasted;
 
     private int textureID;
@@ -98,7 +98,7 @@ public class WandProperty {
                 if (wandTag.contains("Spread")) property.spread = wandTag.getFloat("Spread"); else needFlush = true;
 
                 if (wandTag.contains("Cooldown")) property.cooldown = wandTag.getInt("Cooldown"); else needFlush = true;
-                if (wandTag.contains("Mana")) property.mana = wandTag.getInt("Mana"); else needFlush = true;
+                if (wandTag.contains("Mana")) property.mana = wandTag.getFloat("Mana"); else needFlush = true;
                 if (wandTag.contains("NumberCasted")) property.numberCasted = wandTag.getInt("NumberCasted"); else needFlush = true;
 
                 if (wandTag.contains("TextureID")) property.textureID = wandTag.getInt("TextureID"); else needFlush = true;
@@ -136,7 +136,7 @@ public class WandProperty {
         wandNBT.putFloat("Spread", this.spread);
 
         wandNBT.putInt("Cooldown", this.cooldown);
-        wandNBT.putInt("Mana", this.mana);
+        wandNBT.putFloat("Mana", this.mana);
         wandNBT.putInt("NumberCasted", this.numberCasted);
 
         wandNBT.putInt("TextureID", this.textureID);
@@ -150,7 +150,7 @@ public class WandProperty {
         return cooldown;
     }
 
-    public int getMana() {
+    public float getMana() {
         return mana;
     }
 
@@ -178,12 +178,12 @@ public class WandProperty {
         return capacity;
     }
 
-    public void setMana(int mana) {
+    public void setMana(float mana) {
         this.setMana(mana, true);
     }
 
-    public void setMana(int mana, boolean flush) {
-        this.mana = MathHelper.clamp(mana, 0, manaMax);
+    public void setMana(float mana, boolean flush) {
+        this.mana = MathHelper.clamp(mana, 0f, manaMax);
         if(flush) this.writeProperty();
     }
 

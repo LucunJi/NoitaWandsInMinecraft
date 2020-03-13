@@ -27,11 +27,6 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
     }
 
     @Override
-    protected void onAgeExpire() {
-        this.remove();
-    }
-
-    @Override
     protected int getExpireAge() {
         return 13;
     }
@@ -46,11 +41,6 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
             ProjectileSpell.SPARK_BOLT.damageCollection().causeDamage(this, entityHit);
         }
         if (!this.world.isRemote()) this.remove();
-    }
-
-    @Override
-    protected float getWaterDrag() {
-        return 0.6f;
     }
 
     @Override

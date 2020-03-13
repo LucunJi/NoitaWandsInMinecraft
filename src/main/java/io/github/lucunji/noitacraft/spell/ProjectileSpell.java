@@ -1,11 +1,8 @@
 package io.github.lucunji.noitacraft.spell;
 
 import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
-import io.github.lucunji.noitacraft.entity.spell.BombSpellEntity;
-import io.github.lucunji.noitacraft.entity.spell.EnergySphereSpellEntity;
-import io.github.lucunji.noitacraft.entity.spell.SparkBoltSpellEntity;
-import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
-import net.minecraft.entity.player.PlayerEntity;
+import io.github.lucunji.noitacraft.entity.spell.*;
+import net.minecraft.entity.LivingEntity;
 import net.minecraft.world.World;
 
 import java.util.function.BiFunction;
@@ -37,7 +34,7 @@ public enum ProjectileSpell implements ISpellEnum {
             -1,
             0.05f,
             -1,
-            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world),
+            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world).hasTrigger(),
             1
     ),
     SPARK_BOLT_TRIGGER_DOUBLE(
@@ -52,7 +49,7 @@ public enum ProjectileSpell implements ISpellEnum {
             -1,
             0.05f,
             -1,
-            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT_DOUBLE_TRIGGER, playerEntity, world),
+            (world, playerEntity) -> new SparkBoltDoubleTriggerSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT_DOUBLE_TRIGGER, playerEntity, world).hasTrigger(),
             2
     ),
     ENERGY_SPHERE(
@@ -68,6 +65,20 @@ public enum ProjectileSpell implements ISpellEnum {
             0,
             -1,
             (world, playerEntity) -> new EnergySphereSpellEntity(NoitaEntityTypes.SPELL_ENERGY_SPHERE, playerEntity, world)
+    ),
+    ENERGY_SPHERE_TIMER(
+            SpellType.PROJECTILE_MAGICAL,
+            50,
+            new DamageCollection(0, 0, 2, 10, 0),
+            400,
+            500,
+            3,
+            0,
+            0.6f,
+            0,
+            0,
+            -1,
+            (world, playerEntity) -> new EnergySphereSpellEntity(NoitaEntityTypes.SPELL_ENERGY_SPHERE, playerEntity, world).hasTimer()
     ),
     BOMB(
             SpellType.PROJECTILE_MAGICAL,
@@ -99,14 +110,14 @@ public enum ProjectileSpell implements ISpellEnum {
 
     private final int uses;
 
-    private final BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner;
+    private final BiFunction<World, LivingEntity, SpellEntityBase> entitySummoner;
 
     private final int castNumber;
 
-    ProjectileSpell(SpellType spellType, int manaDrain, DamageCollection damageCollection, int speedMin, int speedMax, int castDelay, int rechargeTime, float spread, float spreadModifier, float criticalChance, int uses, BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner) {
+    ProjectileSpell(SpellType spellType, int manaDrain, DamageCollection damageCollection, int speedMin, int speedMax, int castDelay, int rechargeTime, float spread, float spreadModifier, float criticalChance, int uses, BiFunction<World, LivingEntity, SpellEntityBase> entitySummoner) {
         this(spellType, manaDrain, damageCollection, speedMin, speedMax, castDelay, rechargeTime, spread, spreadModifier, criticalChance, uses, entitySummoner, 0);
     }
-    ProjectileSpell(SpellType spellType, int manaDrain, DamageCollection damageCollection, int speedMin, int speedMax, int castDelay, int rechargeTime, float spread, float spreadModifier, float criticalChance, int uses, BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner, int castNumber) {
+    ProjectileSpell(SpellType spellType, int manaDrain, DamageCollection damageCollection, int speedMin, int speedMax, int castDelay, int rechargeTime, float spread, float spreadModifier, float criticalChance, int uses, BiFunction<World, LivingEntity, SpellEntityBase> entitySummoner, int castNumber) {
         this.spellType = spellType;
         this.manaDrain = manaDrain;
         this.damageCollection = damageCollection;
@@ -175,7 +186,7 @@ public enum ProjectileSpell implements ISpellEnum {
         return castNumber;
     }
 
-    public BiFunction<World, PlayerEntity, SpellEntityBase> entitySummoner() {
+    public BiFunction<World, LivingEntity, SpellEntityBase> entitySummoner() {
         return entitySummoner;
     }
 

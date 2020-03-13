@@ -69,15 +69,12 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
         this.rotationPitch = MathHelper.lerp(0.2F, this.prevRotationPitch, this.rotationPitch);
         this.rotationYaw = MathHelper.lerp(0.2F, this.prevRotationYaw, this.rotationYaw);
 
-        float motionScale = 0.99F;
-        if (this.isInWater()) {
-            motionScale = this.getWaterDrag();
-        }
+        float motionScale = this.isInWater() ?  getWaterDrag() : getAirDrag();
 
         Vec3d nextMotionVec = motionVec.scale(motionScale);
         Vec3d nextPositionVec = motionVec.add(positionVec);
 
-        this.setMotion(nextMotionVec.getX(), motionVec.getY() - this.getGravity(), motionVec.getZ());
+        this.setMotion(nextMotionVec.getX(), nextMotionVec.getY() - this.getGravity(), nextMotionVec.getZ());
         this.setPosition(nextPositionVec.getX(), nextPositionVec.getY(), nextPositionVec.getZ());
 
         this.doBlockCollisions(); // Call BlockState.onEntityCollision(), such as bubble columns, web, cactus

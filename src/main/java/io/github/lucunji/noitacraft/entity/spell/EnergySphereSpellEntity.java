@@ -35,16 +35,6 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
     }
 
     @Override
-    protected void onAgeExpire() {
-        this.remove();
-    }
-
-    @Override
-    protected float getWaterDrag() {
-        return 0.6f;
-    }
-
-    @Override
     protected float getGravity() {
         return 0.03f;
     }

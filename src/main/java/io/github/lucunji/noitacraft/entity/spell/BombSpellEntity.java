@@ -7,7 +7,10 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.math.shapes.VoxelShape;
 import net.minecraft.world.Explosion;
 import net.minecraft.world.World;
@@ -109,10 +112,6 @@ public class BombSpellEntity extends SpellEntityBase {
         }
         return super.attackEntityFrom(source, amount);
     }
-    @Override
-    protected float getWaterDrag() {
-        return 0.6f;
-    }
 
     @Override
     protected float getGravity() {
@@ -128,7 +127,7 @@ public class BombSpellEntity extends SpellEntityBase {
     protected void onAgeExpire() {
         if (!this.world.isRemote()) {
             this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.caster), this.getPosX(), this.getPosY(), this.getPosZ(), 3, true, Explosion.Mode.BREAK);
-            this.remove();
+            super.onAgeExpire();
         }
     }
 

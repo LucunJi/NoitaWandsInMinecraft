@@ -15,10 +15,12 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
@@ -34,13 +36,22 @@ import java.util.List;
 
 public class WandItem extends BaseItem {
     public WandItem(Properties properties) {
-        super(properties.maxStackSize(1));
+        super(properties.maxStackSize(1).group(NoitaCraft.SETUP.WAND_GROUP));
         this.addPropertyOverride(new ResourceLocation(NoitaCraft.MOD_ID, "texture_id"), (itemStack, world, entity) ->
                 NBTHelper.getCompound(itemStack).flatMap(stackTag ->
                     NBTHelper.getCompound(stackTag, "Wand").flatMap(compoundNBT ->
                             NBTHelper.getInt(compoundNBT, "TextureID"))).orElse(-1)
         );
     }
+
+    @Override
+    public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
+        super.fillItemGroup(group, items);
+        items.add(DefaultWands.HANDGUN);
+        items.add(DefaultWands.BOMB_WAND);
+    }
+
+    /******************** Cast spells ********************/
 
     @Override
     public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
@@ -72,6 +83,40 @@ public class WandItem extends BaseItem {
     }
 
     @Override
+    public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
+        return true;
+    }
+
+    private static void cast(World world, PlayerEntity caster, ItemStack wandStack) {
+        WandProperty wandProperty = WandProperty.getPropertyNotNull(wandStack, caster.getRNG());
+        if (wandProperty.getCooldown() > 0) return;
+        WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandProperty, new WandInventory(wandStack));
+        castingHandler.cast(world, caster).forEach(world::addEntity);
+    }
+
+    /**
+     * Cooldown and Mana regen.
+     */
+    @Override
+    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
+        if (entityIn instanceof PlayerEntity) {
+            WandProperty wandProperty = WandProperty.getPropertyNotNull(stack, ((PlayerEntity) entityIn).getRNG());
+            boolean flush = false;
+            if (wandProperty.getCooldown() > 0) {
+                wandProperty.setCooldown(wandProperty.getCooldown() - 1, false);
+                flush = true;
+            }
+            if (wandProperty.getMana() < wandProperty.getManaMax()) {
+                wandProperty.setMana(wandProperty.getMana() + wandProperty.getManaChargeSpeed() / 20f, false);
+                flush = true;
+            }
+            if (flush) wandProperty.writeProperty();
+        }
+    }
+
+    /******************** Client-side info ********************/
+
+    @Override
     public boolean showDurabilityBar(ItemStack stack) {
         return stack.hasTag();
     }
@@ -90,36 +135,6 @@ public class WandItem extends BaseItem {
     public int getRGBDurabilityForDisplay(ItemStack stack) {
         return new Color(51, 188, 247).getRGB();
     }
-
-    @Override
-    public boolean canContinueUsing(ItemStack oldStack, ItemStack newStack) {
-        return true;
-    }
-
-    private static void cast(World world, PlayerEntity caster, ItemStack wandStack) {
-        WandProperty wandProperty = WandProperty.getPropertyNotNull(wandStack, caster.getRNG());
-        if (wandProperty.getCooldown() > 0) return;
-        WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandProperty, new WandInventory(wandStack));
-        castingHandler.cast(world, caster).forEach(world::addEntity);
-    }
-
-    @Override
-    public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
-        if (entityIn instanceof PlayerEntity) {
-            WandProperty wandProperty = WandProperty.getPropertyNotNull(stack, ((PlayerEntity) entityIn).getRNG());
-            boolean flush = false;
-            if (wandProperty.getCooldown() > 0) {
-                wandProperty.setCooldown(wandProperty.getCooldown() - 1, false);
-                flush = true;
-            }
-            if (wandProperty.getMana() < wandProperty.getManaMax() && worldIn.getGameTime() % 20 == 0) {
-                wandProperty.setMana(wandProperty.getMana() + wandProperty.getManaChargeSpeed(), false);
-                flush = true;
-            }
-            if (flush) wandProperty.writeProperty();
-        }
-    }
-
 
     @OnlyIn(Dist.CLIENT)
     @Override

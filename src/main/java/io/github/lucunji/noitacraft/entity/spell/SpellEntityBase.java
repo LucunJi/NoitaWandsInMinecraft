@@ -12,7 +12,6 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.ParticleTypes;
@@ -35,28 +34,33 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     protected int age;
 
     protected List<ISpellEnum> castList;
-    protected boolean casted;
+
+    protected boolean hasTrigger;
+    protected boolean hasTimer;
 
     public SpellEntityBase(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
+        this.casterUUID = null;
+        this.caster = null;
+        this.inGround = false;
         this.age = 0;
         this.castList = new ArrayList<>();
-        this.casted = false;
+        this.hasTrigger = false;
+        this.hasTimer = false;
     }
 
 
     @Override
     protected void readAdditional(CompoundNBT compound) {
-        if (compound.contains("Caster")) {
-            this.casterUUID = compound.getUniqueId("Caster");
-            if (!this.world.isRemote() && this.casterUUID != null) {
-                ((ServerWorld) this.world).getEntityByUuid(this.casterUUID);
-            }
+        this.casterUUID = compound.getUniqueId("Caster");
+        if (!this.world.isRemote() && this.casterUUID != null) {
+            ((ServerWorld) this.world).getEntityByUuid(this.casterUUID);
         }
         this.inGround = compound.getBoolean("inGround");
         this.age = compound.getInt("Age");
 
-        this.casted = NBTHelper.getBoolean(compound, "Casted").orElse(true);
+        this.hasTrigger = NBTHelper.getBoolean(compound, "HasTrigger").orElse(true);
+        this.hasTimer = NBTHelper.getBoolean(compound, "HasTimer").orElse(true);
         this.castList = CastHelper.spellListFromNBT(compound.getList("CastList", NBTTypes.STRING.ordinal()));
     }
 
@@ -66,8 +70,10 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         compound.putBoolean("inGround", inGround);
         compound.putInt("Age", this.age);
 
-        if (this.castList != null && !this.castList.isEmpty()) {
-            compound.putBoolean("Casted", this.casted);
+        compound.putBoolean("HasTrigger", this.hasTrigger);
+        compound.putBoolean("HasTimer", this.hasTimer);
+
+        if (this.castList != null && !this.castList.isEmpty() && (this.hasTrigger || this.hasTimer)) {
             compound.put("CastList", CastHelper.spellNBTFromList(castList));
         }
     }
@@ -89,16 +95,22 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     public void tick() {
         super.tick();
         ++this.age;
-        if (this.age > this.getExpireAge()) onAgeExpire();
-//        if (!this.casted && this.age > this.getAgeToCast()) {
-//            this.casted = true;
-//            this.castSpell();
-//        }
+        if (this.age > this.getExpireAge()) {
+            this.onAgeExpire();
+        } else if (this.hasTimer && this.age > this.getAgeToCast()) {
+            this.castSpellTimer();
+            this.hasTimer = false;
+        }
 
         this.generateParticles();
     }
 
-    protected void castSpellOnHit(RayTraceResult traceResult) {
+    protected void castSpellTimer() {
+        if (this.world.isRemote()) return;
+        castSpell(this.getMotion());
+    }
+
+    protected void castSpellTrigger(RayTraceResult traceResult) {
         if (this.world.isRemote()) return;
         if (this.castList == null || this.castList.isEmpty()) return;
         Vec3d reflectedVec;
@@ -110,6 +122,10 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
             return;
         }
 
+        castSpell(reflectedVec);
+    }
+
+    private void castSpell(Vec3d castVec) {
         ProjectileSpellPoolIterator iterator = new ProjectileSpellPoolIterator(castList);
         while (iterator.hasNext()) {
             SpellTree spellTree = new SpellTree(iterator);
@@ -119,7 +135,7 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
 
                 if (iSpellEnum instanceof ProjectileSpell) {
                     ProjectileSpell projectileSpell = (ProjectileSpell) iSpellEnum;
-                    SpellEntityBase entityBase = projectileSpell.entitySummoner().apply(world, (PlayerEntity)this.caster);
+                    SpellEntityBase entityBase = projectileSpell.entitySummoner().apply(world, this.caster);
 
                     float speed = 0;
                     int speedMin = projectileSpell.getSpeedMin();
@@ -129,7 +145,7 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
                     speed += 200f;
                     speed /= 600f;
 
-                    entityBase.shoot(reflectedVec.getX(), reflectedVec.getY(), reflectedVec.getZ(), speed, 1.0f);
+                    entityBase.shoot(castVec.getX(), castVec.getY(), castVec.getZ(), speed, 1.0f);
                     entityBase.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
                     entityBase.setCastList(spellEnumList);
                     this.world.addEntity(entityBase);
@@ -138,13 +154,32 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         }
     }
 
-    protected abstract int getExpireAge();
+    public final SpellEntityBase hasTrigger() {
+        this.hasTrigger = true;
+        return this;
+    }
+    public final SpellEntityBase hasTimer() {
+        this.hasTimer = true;
+        return this;
+    }
 
-    protected abstract void onAgeExpire();
+    protected int getExpireAge() {
+        return 13;
+    }
 
-    protected abstract float getWaterDrag();
+    protected void onAgeExpire() {
+        this.remove();
+    }
+
+    protected float getWaterDrag() {
+        return 0.6f;
+    }
 
     protected abstract float getGravity();
+
+    protected float getAirDrag() {
+        return 0.99f;
+    }
 
     protected void generateParticles() {
         Vec3d motionVec = this.getMotion();
@@ -162,17 +197,18 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         return caster;
     }
 
-//    protected int getAgeToCast() {
-//        return Integer.MAX_VALUE;
-//    }
+    protected int getAgeToCast() {
+        return 13;
+    }
 
     public void setCastList(List<ISpellEnum> castList) {
         this.castList = castList;
     }
 
     protected void onHit(RayTraceResult traceResult) {
-        if (!this.casted) {
-            this.castSpellOnHit(traceResult);
+        if (this.hasTrigger) {
+            this.castSpellTrigger(traceResult);
+            this.hasTrigger = false;
         }
     }
 }
