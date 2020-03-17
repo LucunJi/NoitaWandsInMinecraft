@@ -15,15 +15,15 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.ParticleTypes;
-import net.minecraft.util.math.BlockRayTraceResult;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.Direction;
+import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkHooks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public abstract class SpellEntityBase extends Entity implements IProjectile {
@@ -116,6 +116,20 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         Vec3d reflectedVec;
         if (traceResult.getType() == RayTraceResult.Type.ENTITY) {
             reflectedVec = this.getMotion().scale(-1);
+            AxisAlignedBB box = ((EntityRayTraceResult) traceResult).getEntity().getBoundingBox().grow(0.3f);
+            Optional<Vec3d> hitPosOptional = box.rayTrace(this.getPositionVec(), this.getPositionVec().add(this.getMotion()));
+            if (hitPosOptional.isPresent()) {
+                Vec3d hitPos = hitPosOptional.get();
+                Direction.Axis axis;
+                if (hitPos.getX() == box.minX || hitPos.getX() == box.maxX) {
+                    axis = Direction.Axis.X;
+                } else if (hitPos.getY() == box.minY || hitPos.getY() == box.maxY) {
+                    axis = Direction.Axis.Y;
+                } else {
+                    axis = Direction.Axis.Z;
+                }
+                reflectedVec = MathHelper.reflectByAxis(this.getMotion(), axis);
+            }
         } else if (traceResult.getType() == RayTraceResult.Type.BLOCK) {
             reflectedVec = MathHelper.reflectByAxis(this.getMotion(), ((BlockRayTraceResult) traceResult).getFace().getAxis());
         } else {
@@ -158,6 +172,7 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         this.hasTrigger = true;
         return this;
     }
+
     public final SpellEntityBase hasTimer() {
         this.hasTimer = true;
         return this;
@@ -206,9 +221,14 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     }
 
     protected void onHit(RayTraceResult traceResult) {
-        if (this.hasTrigger) {
+        if (this.hasTrigger || this.hasTimer) {
             this.castSpellTrigger(traceResult);
             this.hasTrigger = false;
+            this.hasTimer = false;
         }
+//        if (this.hasTimer) {
+//            this.castSpellTimer();
+//            this.hasTimer = false;
+//        }
     }
 }

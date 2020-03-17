@@ -42,7 +42,6 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
     @Override
     protected void onHit(RayTraceResult rayTraceResult) {
         super.onHit(rayTraceResult);
-
         if (rayTraceResult.getType() == RayTraceResult.Type.ENTITY) {
             Entity entityHit = ((EntityRayTraceResult) rayTraceResult).getEntity();
             if (entityHit.getUniqueID().equals(this.casterUUID)) return;
@@ -84,7 +83,7 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
     protected void generateParticles() {
         super.generateParticles();
         for (int i = 0; i < 5; i++) {
-            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_ENERGY_SPHERE)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0, 0);
+            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_ENERGY_SPHERE)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0.3, 0);
         }
     }
 }

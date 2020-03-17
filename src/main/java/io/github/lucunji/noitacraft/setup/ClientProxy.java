@@ -22,6 +22,8 @@ public class ClientProxy implements IProxy {
     public void init() {
         ScreenManager.registerFactory(NoitaContainers.WAND_CONTAINER, WandScreen::new);
 
+//        Minecraft.getInstance().particles.registerFactory(NoitaParticles.TRAIL, TrailParticle.TrailParticleFactory::new);
+
         RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_SPARK_BOLT, SparkBoltSpellRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_SPARK_BOLT_DOUBLE_TRIGGER, SparkBoltDoubleTriggerSpellRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_BOMB, BombSpellRenderer::new);

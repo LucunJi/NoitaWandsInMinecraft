@@ -5,7 +5,6 @@ import io.github.lucunji.noitacraft.util.NBTHelper;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.text.StringTextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class DefaultWands {
@@ -28,7 +27,7 @@ public class DefaultWands {
                         wandNBT.putInt("NumberCasted", 0);
                         wandNBT.putInt("ManaMax", 100);
                     }))
-    )).setDisplayName(new StringTextComponent("item.noitacraft.wand.starting"));
+    )).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
 
     public static final ItemStack BOMB_WAND = NBTHelper.makeItemWithTag(NoitaItems.WAND, 1, NBTHelper.makeCompound(
             compoundNBT -> compoundNBT.put("Wand", NBTHelper.makeCompound(

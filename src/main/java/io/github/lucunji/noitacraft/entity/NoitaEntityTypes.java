@@ -12,12 +12,13 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
 
+@ObjectHolder(NoitaCraft.MOD_ID)
 public class NoitaEntityTypes {
 
-    @ObjectHolder(NoitaCraft.MOD_ID + ":spark_bolt_spell") public static EntityType<SparkBoltSpellEntity> SPELL_SPARK_BOLT;
-    @ObjectHolder(NoitaCraft.MOD_ID + ":spark_bolt_spell_trigger_double") public static EntityType<SparkBoltSpellEntity> SPELL_SPARK_BOLT_DOUBLE_TRIGGER;
-    @ObjectHolder(NoitaCraft.MOD_ID + ":bomb_spell") public static EntityType<BombSpellEntity> SPELL_BOMB;
-    @ObjectHolder(NoitaCraft.MOD_ID + ":energy_sphere_spell") public static EntityType<EnergySphereSpellEntity> SPELL_ENERGY_SPHERE;
+    @ObjectHolder("spark_bolt_spell") public static EntityType<SparkBoltSpellEntity> SPELL_SPARK_BOLT;
+    @ObjectHolder("spark_bolt_spell_trigger_double") public static EntityType<SparkBoltSpellEntity> SPELL_SPARK_BOLT_DOUBLE_TRIGGER;
+    @ObjectHolder("bomb_spell") public static EntityType<BombSpellEntity> SPELL_BOMB;
+    @ObjectHolder("energy_sphere_spell") public static EntityType<EnergySphereSpellEntity> SPELL_ENERGY_SPHERE;
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD) public static class Register {
 
         @SubscribeEvent

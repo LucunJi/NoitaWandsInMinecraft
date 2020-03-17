@@ -28,7 +28,7 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
 
     @Override
     protected int getExpireAge() {
-        return 13;
+        return 10;
     }
 
     @Override
@@ -52,7 +52,12 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
     protected void generateParticles() {
         super.generateParticles();
         for (int i = 0; i < 5; i++) {
-            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_SPARK_BOLT)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0, 0);
+            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_SPARK_BOLT)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0.3, 0);
         }
+    }
+
+    @Override
+    protected int getAgeToCast() {
+        return 7;
     }
 }

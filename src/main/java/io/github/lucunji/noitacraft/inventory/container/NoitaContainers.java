@@ -8,8 +8,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
 
+@ObjectHolder(NoitaCraft.MOD_ID )
 public class NoitaContainers {
-    @ObjectHolder(NoitaCraft.MOD_ID + ":wand_container")
+    @ObjectHolder("wand_container")
     public static ContainerType<WandContainer> WAND_CONTAINER;
 
     @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)

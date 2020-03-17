@@ -42,7 +42,7 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
 
         RayTraceResult rayTraceResult = ProjectileHelper.rayTrace(this, this.getBoundingBox().expand(this.getMotion()).grow(1), entity ->
                 !entity.isSpectator() && entity.canBeCollidedWith() && entity != this.caster,
-                RayTraceContext.BlockMode.OUTLINE, true);
+                RayTraceContext.BlockMode.COLLIDER, true);
         if (rayTraceResult.getType() != RayTraceResult.Type.MISS) {
             this.onHit(rayTraceResult);
             this.isAirBorne = true;

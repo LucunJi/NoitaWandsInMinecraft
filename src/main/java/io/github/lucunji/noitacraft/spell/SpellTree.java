@@ -2,7 +2,6 @@ package io.github.lucunji.noitacraft.spell;
 
 import com.mojang.datafixers.util.Pair;
 import io.github.lucunji.noitacraft.spell.iterator.SpellPoolIterator;
-import io.github.lucunji.noitacraft.util.IntHolder;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -16,6 +15,8 @@ public class SpellTree {
     private int totalRecharge = 0;
     private int totalMana = 0;
     private int size = 0;
+    private final int manaLimit;
+    private boolean end = false;
 
     public SpellTree(SpellPoolIterator iterator) {
         this(iterator, Integer.MAX_VALUE);
@@ -23,14 +24,24 @@ public class SpellTree {
 
     public SpellTree(SpellPoolIterator iterator, int manaLimit) {
         this.root = new SpellNode(null, null);
+        this.manaLimit = manaLimit;
         if (iterator.hasNext()) {
-            feed(this.root, iterator, false, new IntHolder(manaLimit));
+            feed(this.root, iterator, false);
         }
     }
 
-    private void feed(SpellNode node, SpellPoolIterator iterator, boolean resetDone, IntHolder manaLimit) {
+    private void feed(SpellNode node, SpellPoolIterator iterator, boolean resetDone) {
+
+//        Stack<SpellNode> spellNodeStack = new Stack<>();
+//        spellNodeStack.push(new SpellNode(iterator.next(), null));
+//        while (spellNodeStack.size() > 0) {
+//            SpellNode currentNode = spellNodeStack.pop();
+//
+//        }
+
         int peerCount = node.spell == null ? 1 : node.spell.getCastNumber();
-        while ((iterator.hasNext() || !resetDone) && peerCount > 0) {
+
+        while ((iterator.hasNext() || (!resetDone && !(node.spell instanceof ProjectileSpell))) && peerCount > 0 && !end) {
             ISpellEnum spellEnum;
             if (!iterator.hasNext()) {
                 iterator.reset();
@@ -43,10 +54,10 @@ public class SpellTree {
             }
 
             int manaCost = spellEnum.getManaDrain();
-            if (manaCost > manaLimit.value) {
+            if (manaCost + totalMana > manaLimit) {
+                end = true;
                 continue;
             }
-            manaLimit.value -= manaCost;
 
             ++this.size;
             this.totalDelay += spellEnum.getCastDelay();
@@ -54,7 +65,7 @@ public class SpellTree {
             this.totalMana += manaCost;
 
             SpellNode child = new SpellNode(spellEnum, node);
-            if (spellEnum.getCastNumber() > 0) feed(child, iterator, resetDone, manaLimit);
+            if (spellEnum.getCastNumber() > 0) feed(child, iterator, resetDone);
             node.siblings.add(child);
             if (spellEnum instanceof ModifierSpell) {
                 peerCount += spellEnum.getCastNumber();
@@ -122,6 +133,10 @@ public class SpellTree {
 
         public ISpellEnum getSpell() {
             return spell;
+        }
+
+        public Collection<SpellNode> getSiblings() {
+            return siblings;
         }
     }
 }

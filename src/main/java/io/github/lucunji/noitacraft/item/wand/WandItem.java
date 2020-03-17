@@ -47,8 +47,10 @@ public class WandItem extends BaseItem {
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         super.fillItemGroup(group, items);
-        items.add(DefaultWands.HANDGUN);
-        items.add(DefaultWands.BOMB_WAND);
+        if (this.isInGroup(group)) {
+            items.add(DefaultWands.HANDGUN);
+            items.add(DefaultWands.BOMB_WAND);
+        }
     }
 
     /******************** Cast spells ********************/

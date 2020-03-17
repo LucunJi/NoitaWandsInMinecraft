@@ -22,6 +22,21 @@ public enum ProjectileSpell implements ISpellEnum {
             -1,
             (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world)
     ),
+    SPARK_BOLT_TIMER(
+            SpellType.PROJECTILE_MAGICAL,
+            10,
+            new DamageCollection(3.0f, 0, 2, 0, 0),
+            750,
+            850,
+            1,
+            0,
+            0,
+            -1,
+            0.05f,
+            -1,
+            (world, playerEntity) -> new SparkBoltSpellEntity(NoitaEntityTypes.SPELL_SPARK_BOLT, playerEntity, world).hasTimer(),
+            1
+    ),
     SPARK_BOLT_TRIGGER(
             SpellType.PROJECTILE_MAGICAL,
             10,
@@ -78,7 +93,8 @@ public enum ProjectileSpell implements ISpellEnum {
             0,
             0,
             -1,
-            (world, playerEntity) -> new EnergySphereSpellEntity(NoitaEntityTypes.SPELL_ENERGY_SPHERE, playerEntity, world).hasTimer()
+            (world, playerEntity) -> new EnergySphereSpellEntity(NoitaEntityTypes.SPELL_ENERGY_SPHERE, playerEntity, world).hasTimer(),
+            1
     ),
     BOMB(
             SpellType.PROJECTILE_MAGICAL,
