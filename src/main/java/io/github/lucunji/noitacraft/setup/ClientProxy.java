@@ -6,9 +6,12 @@ import io.github.lucunji.noitacraft.client.renderer.entity.SparkBoltDoubleTrigge
 import io.github.lucunji.noitacraft.client.renderer.entity.SparkBoltSpellRenderer;
 import io.github.lucunji.noitacraft.client.screen.WandScreen;
 import io.github.lucunji.noitacraft.entity.NoitaEntityTypes;
+import io.github.lucunji.noitacraft.fluid.NoitaFluids;
 import io.github.lucunji.noitacraft.inventory.container.NoitaContainers;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScreenManager;
+import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.RenderTypeLookup;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.RenderingRegistry;
 
@@ -20,9 +23,10 @@ public class ClientProxy implements IProxy {
 
     @Override
     public void init() {
-        ScreenManager.registerFactory(NoitaContainers.WAND_CONTAINER, WandScreen::new);
+        RenderTypeLookup.setRenderLayer(NoitaFluids.BERSERKIUM, RenderType.getTranslucent());
+        RenderTypeLookup.setRenderLayer(NoitaFluids.FLOWING_BERSERKIUM, RenderType.getTranslucent());
 
-//        Minecraft.getInstance().particles.registerFactory(NoitaParticles.TRAIL, TrailParticle.TrailParticleFactory::new);
+        ScreenManager.registerFactory(NoitaContainers.WAND_CONTAINER, WandScreen::new);
 
         RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_SPARK_BOLT, SparkBoltSpellRenderer::new);
         RenderingRegistry.registerEntityRenderingHandler(NoitaEntityTypes.SPELL_SPARK_BOLT_DOUBLE_TRIGGER, SparkBoltDoubleTriggerSpellRenderer::new);
