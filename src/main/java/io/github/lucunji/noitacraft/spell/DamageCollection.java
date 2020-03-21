@@ -1,5 +1,6 @@
 package io.github.lucunji.noitacraft.spell;
 
+import io.github.lucunji.noitacraft.effect.NoitaEffects;
 import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.DamageSource;
@@ -24,21 +25,25 @@ public class DamageCollection {
     }
 
     public void causeDamage(SpellEntityBase spellEntity, Entity targetEntity) {
+        float multiplier = 1;
+        if (spellEntity.getCaster() != null && spellEntity.getCaster().getActivePotionEffect(NoitaEffects.BERSERK) != null) {
+            multiplier *= 2;
+        }
         if (damageImpact > 0) {
             targetEntity.hurtResistantTime = 0;
-            targetEntity.attackEntityFrom(DamageSource.causeThrownDamage(spellEntity, spellEntity.getCaster()), damageImpact);
+            targetEntity.attackEntityFrom(DamageSource.causeThrownDamage(spellEntity, spellEntity.getCaster()), damageImpact * multiplier);
         }
         if (damageExplosion > 0) {
             targetEntity.hurtResistantTime = 0;
-            targetEntity.attackEntityFrom(DamageSource.causeExplosionDamage(spellEntity.getCaster()), damageExplosion);
+            targetEntity.attackEntityFrom(DamageSource.causeExplosionDamage(spellEntity.getCaster()), damageExplosion * multiplier);
         }
         if (damageSlice > 0) {
             targetEntity.hurtResistantTime = 0;
-            targetEntity.attackEntityFrom(DamageSource.causeIndirectDamage(spellEntity, spellEntity.getCaster()).setDamageBypassesArmor(), damageSlice);
+            targetEntity.attackEntityFrom(DamageSource.causeIndirectDamage(spellEntity, spellEntity.getCaster()).setDamageBypassesArmor(), damageSlice * multiplier);
         }
         if (damageElectricity > 0) {
             targetEntity.hurtResistantTime = 0;
-            targetEntity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(spellEntity, spellEntity.getCaster()), damageElectricity);
+            targetEntity.attackEntityFrom(DamageSource.causeIndirectMagicDamage(spellEntity, spellEntity.getCaster()), damageElectricity * multiplier);
         }
     }
 }

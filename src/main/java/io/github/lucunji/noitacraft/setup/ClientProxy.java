@@ -25,6 +25,8 @@ public class ClientProxy implements IProxy {
     public void init() {
         RenderTypeLookup.setRenderLayer(NoitaFluids.BERSERKIUM, RenderType.getTranslucent());
         RenderTypeLookup.setRenderLayer(NoitaFluids.FLOWING_BERSERKIUM, RenderType.getTranslucent());
+        RenderTypeLookup.setRenderLayer(NoitaFluids.BLOOD, RenderType.getTranslucent());
+        RenderTypeLookup.setRenderLayer(NoitaFluids.FLOWING_BLOOD, RenderType.getTranslucent());
 
         ScreenManager.registerFactory(NoitaContainers.WAND_CONTAINER, WandScreen::new);
 

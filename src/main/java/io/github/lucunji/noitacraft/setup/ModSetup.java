@@ -32,8 +32,6 @@ public class ModSetup {
             Registry.ITEM.stream()
                     .sorted(Comparator.comparing(Item::getTranslationKey))
                     .forEach(item -> item.fillItemGroup(this, items));
-//                    .collect(NonNullList::create, NonNullList::add, AbstractCollection::addAll);
-//            super.fill(itemList.);
         }
 
     };

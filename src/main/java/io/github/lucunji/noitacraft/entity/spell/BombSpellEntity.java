@@ -1,5 +1,6 @@
 package io.github.lucunji.noitacraft.entity.spell;
 
+import io.github.lucunji.noitacraft.effect.NoitaEffects;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
@@ -126,7 +127,8 @@ public class BombSpellEntity extends SpellEntityBase {
     @Override
     protected void onAgeExpire() {
         if (!this.world.isRemote()) {
-            this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.caster), this.getPosX(), this.getPosY(), this.getPosZ(), 3, true, Explosion.Mode.BREAK);
+            this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.caster), this.getPosX(), this.getPosY(), this.getPosZ(),
+                    this.caster.getActivePotionEffect(NoitaEffects.BERSERK) != null ? 6 : 3, true, Explosion.Mode.BREAK);
             super.onAgeExpire();
         }
     }
