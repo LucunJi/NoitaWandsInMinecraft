@@ -1,5 +1,6 @@
 package io.github.lucunji.noitacraft.inventory;
 
+import io.github.lucunji.noitacraft.item.wand.WandData;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
@@ -10,22 +11,14 @@ public class WandInventory extends Inventory {
     private final ItemStack wandItemStack;
 
     public WandInventory(ItemStack wandItemStack) {
-        super(getCount(wandItemStack));
+        super(new WandData(wandItemStack).getCapacity());
         this.wandItemStack = wandItemStack;
         readFromStack();
     }
 
-    private static int getCount(ItemStack wandItemStack) {
-        if (wandItemStack.hasTag() && wandItemStack.getTag().contains("Wand") && wandItemStack.getTag().getCompound("Wand").contains("Capacity")) {
-            return wandItemStack.getTag().getCompound("Wand").getByte("Capacity");
-        } else {
-            return 0;
-        }
-    }
-
     private void readFromStack() {
         if (wandItemStack.hasTag()) {
-            CompoundNBT wandTag = wandItemStack.getTag().getCompound("Wand");
+            CompoundNBT wandTag = wandItemStack.getOrCreateChildTag("Wand");
             final NonNullList<ItemStack> list = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
             ItemStackHelper.loadAllItems(wandTag.getCompound("Spells"), list);
             for (int i = 0; i < this.getSizeInventory(); ++i) {
@@ -35,16 +28,7 @@ public class WandInventory extends Inventory {
     }
 
     public void writeToStack() {
-        CompoundNBT tag = wandItemStack.getTag();
-        if (tag == null) {
-            tag = new CompoundNBT();
-            wandItemStack.setTag(tag);
-        }
-        CompoundNBT wandNBT = new CompoundNBT();
-        if (tag.contains("Wand")) {
-            wandNBT = tag.getCompound("Wand");
-            tag.put("Wand", wandNBT);
-        }
+        CompoundNBT wandNBT = wandItemStack.getOrCreateChildTag("Wand");
         if (!wandNBT.contains("Spells")) wandNBT.put("Spells", new CompoundNBT());
         if (wandItemStack.hasTag()) {
             final NonNullList<ItemStack> list = NonNullList.withSize(this.getSizeInventory(), ItemStack.EMPTY);
@@ -53,6 +37,6 @@ public class WandInventory extends Inventory {
             }
             ItemStackHelper.saveAllItems(wandNBT.getCompound("Spells"), list, true);
         }
-        wandNBT.putInt("NumberCasted", 0);
+        new WandData(wandItemStack).setNumberCasted(0);
     }
 }

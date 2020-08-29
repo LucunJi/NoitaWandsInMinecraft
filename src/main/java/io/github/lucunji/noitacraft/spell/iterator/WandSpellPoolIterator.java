@@ -2,26 +2,26 @@ package io.github.lucunji.noitacraft.spell.iterator;
 
 import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.item.SpellItem;
-import io.github.lucunji.noitacraft.item.wand.WandProperty;
+import io.github.lucunji.noitacraft.item.wand.WandData;
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
 
-public class OrderedWandSpellPoolIterator extends SpellPoolIterator {
-    private final WandProperty wandProperty;
+public class WandSpellPoolIterator extends SpellPoolIterator {
+    private final WandData wandData;
     private final WandInventory wandInventory;
     private int resetCount;
     private int next;
 
-    public OrderedWandSpellPoolIterator(WandProperty wandProperty, WandInventory wandInventory) {
-        this.wandProperty = wandProperty;
+    public WandSpellPoolIterator(WandData wandData, WandInventory wandInventory) {
+        this.wandData = wandData;
         this.wandInventory = wandInventory;
         this.resetCount = 0;
-        this.next = wandProperty.getNumberCasted();
+        this.next = wandData.getNumberCasted();
         this.findNextIndex();
     }
 
     @Override
     public boolean hasNext() {
-        return this.next < wandProperty.getCapacity() && !wandInventory.isEmpty();
+        return this.next < wandData.getCapacity() && !wandInventory.isEmpty();
     }
 
     @Override
@@ -29,12 +29,12 @@ public class OrderedWandSpellPoolIterator extends SpellPoolIterator {
         int index = this.next;
         ++this.next;
         this.findNextIndex();
-        wandProperty.setNumberCasted(next);
+        wandData.setNumberCasted(next);
         return ((SpellItem) wandInventory.getStackInSlot(index).getItem()).getSpell();
     }
 
     private void findNextIndex() {
-        while (this.next < wandProperty.getCapacity() && !(wandInventory.getStackInSlot(this.next).getItem() instanceof SpellItem)) {
+        while (this.next < wandData.getCapacity() && !(wandInventory.getStackInSlot(this.next).getItem() instanceof SpellItem)) {
             ++this.next;
         }
     }
@@ -44,7 +44,7 @@ public class OrderedWandSpellPoolIterator extends SpellPoolIterator {
         ++resetCount;
         this.next = 0;
         findNextIndex();
-        wandProperty.setNumberCasted(0);
+        wandData.setNumberCasted(0);
     }
 
     @Override

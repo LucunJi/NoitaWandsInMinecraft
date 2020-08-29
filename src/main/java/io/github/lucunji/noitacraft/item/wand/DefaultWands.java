@@ -1,51 +1,43 @@
 package io.github.lucunji.noitacraft.item.wand;
 
+import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.item.NoitaItems;
-import io.github.lucunji.noitacraft.util.NBTHelper;
-import net.minecraft.inventory.ItemStackHelper;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.TranslationTextComponent;
 
 public class DefaultWands {
-    public static final ItemStack HANDGUN = NBTHelper.makeItemWithTag(NoitaItems.WAND, 1, NBTHelper.makeCompound(
-            compoundNBT -> compoundNBT.put("Wand", NBTHelper.makeCompound(
-                    wandNBT -> {
-                        wandNBT.putInt("CastDelay", 4);
-                        wandNBT.putFloat("Mana", 100);
-                        wandNBT.putBoolean("Shuffle", false);
-                        wandNBT.putInt("ManaChargeSpeed", 30);
-                        wandNBT.putInt("Cooldown", 0);
-                        wandNBT.putByte("Casts", (byte)1);
-                        wandNBT.putFloat("Spread", 0);
-                        wandNBT.putInt("RechargeTime", 8);
-                        wandNBT.putByte("Capacity", (byte)3);
-                        wandNBT.put("Spells", NBTHelper.makeCompound(spellListNBT -> ItemStackHelper.saveAllItems(spellListNBT, NonNullList.from(ItemStack.EMPTY,
-                                new ItemStack(NoitaItems.SPELL_SPARK_BOLT),
-                                new ItemStack(NoitaItems.SPELL_SPARK_BOLT)), true)));
-                        wandNBT.putInt("TextureID", 0);
-                        wandNBT.putInt("NumberCasted", 0);
-                        wandNBT.putInt("ManaMax", 100);
-                    }))
-    )).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
+    public static final ItemStack HANDGUN = makeWandStack(4, false, 30, (byte)1,
+            0f, 8, (byte)3, 0, 100,
+            NoitaItems.SPELL_SPARK_BOLT, NoitaItems.SPELL_SPARK_BOLT).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
 
-    public static final ItemStack BOMB_WAND = NBTHelper.makeItemWithTag(NoitaItems.WAND, 1, NBTHelper.makeCompound(
-            compoundNBT -> compoundNBT.put("Wand", NBTHelper.makeCompound(
-                    wandNBT -> {
-                        wandNBT.putInt("CastDelay", 2);
-                        wandNBT.putFloat("Mana", 100);
-                        wandNBT.putBoolean("Shuffle", false);
-                        wandNBT.putInt("ManaChargeSpeed", 10);
-                        wandNBT.putInt("Cooldown", 0);
-                        wandNBT.putByte("Casts", (byte)1);
-                        wandNBT.putFloat("Spread", 0);
-                        wandNBT.putInt("RechargeTime", 1);
-                        wandNBT.putByte("Capacity", (byte)1);
-                        wandNBT.put("Spells", NBTHelper.makeCompound(spellListNBT -> ItemStackHelper.saveAllItems(spellListNBT, NonNullList.from(ItemStack.EMPTY,
-                                new ItemStack(NoitaItems.SPELL_BOMB)), true)));
-                        wandNBT.putInt("TextureID", 1);
-                        wandNBT.putInt("NumberCasted", 0);
-                        wandNBT.putInt("ManaMax", 100);
-                    }))
-    )).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
+    public static final ItemStack BOMB_WAND = makeWandStack(2, false, 10, (byte)1,
+            0f, 1, (byte)1, 1, 100,
+            NoitaItems.SPELL_BOMB).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
+
+    public static ItemStack makeWandStack(int castDelay, boolean shuffle, int manaChargeSpeed, byte casts,
+                                          float spread, int rechargeTime, byte capacity, int textureID, int manaMax, Item... spells) {
+        ItemStack itemStack = new ItemStack(NoitaItems.WAND, 1);
+        WandData wandData = new WandData(itemStack);
+        wandData.setCastDelay(castDelay);
+        wandData.setMana(manaMax);
+        wandData.setShuffle(shuffle);
+        wandData.setManaChargeSpeed(manaChargeSpeed);
+        wandData.setCooldown(0);
+        wandData.setCasts(casts);
+        wandData.setSpread(spread);
+        wandData.setRechargeTime(rechargeTime);
+        wandData.setCapacity(capacity);
+        wandData.setTextureID(textureID);
+        wandData.setNumberCasted(0);
+        wandData.setManaMax(manaMax);
+
+        WandInventory inventory = new WandInventory(itemStack);
+        for (int i = 0; i < spells.length; i++) {
+            inventory.setInventorySlotContents(i, new ItemStack(spells[i]));
+        }
+        inventory.writeToStack();
+
+        return itemStack;
+    }
 }

@@ -17,7 +17,6 @@ import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
@@ -34,6 +33,14 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * About Wand:
+ * {@link WandItem} how wand is used, displayed or ticked in inventory as an {@link net.minecraft.item.Item} Singleton
+ * {@link WandData} how data of wand is stored, accessed and modified as an instance of {@link ItemStack}
+ * {@link WandInventory} how the inventory(spell list) is stored, accessed and modified as an instance of {@link ItemStack}
+ *
+ * Most direct operations of NBT should be kept in {@link WandData} and {@link WandInventory}
+ */
 public class WandItem extends BaseItem {
     public WandItem(Properties properties) {
         super(properties.maxStackSize(1).group(NoitaCraft.SETUP.WAND_GROUP));
@@ -44,10 +51,13 @@ public class WandItem extends BaseItem {
         );
     }
 
+
+
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
         super.fillItemGroup(group, items);
         if (this.isInGroup(group)) {
+            items.removeIf(itemStack -> itemStack.getItem() instanceof WandItem);
             items.add(DefaultWands.HANDGUN);
             items.add(DefaultWands.BOMB_WAND);
         }
@@ -59,7 +69,7 @@ public class WandItem extends BaseItem {
     public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
         if (!player.world.isRemote() && player instanceof ServerPlayerEntity) {
             if (!player.isShiftKeyDown()) {
-                cast(player.world, ((ServerPlayerEntity) player), stack);
+                this.cast(player.world, ((ServerPlayerEntity) player), stack);
             }
         } else {
             ((ClientPlayerEntity) player).moveStrafing *= 5f;
@@ -73,7 +83,7 @@ public class WandItem extends BaseItem {
         if (!worldIn.isRemote() && playerIn instanceof ServerPlayerEntity) {
             if (handIn == Hand.MAIN_HAND && itemStack.getItem().equals(NoitaItems.WAND)) {
                 if (playerIn.isShiftKeyDown()) {
-                    WandProperty wandProperty = WandProperty.getPropertyNotNull(itemStack, playerIn.getRNG());
+                    new WandData(itemStack);
                     NetworkHooks.openGui((ServerPlayerEntity) playerIn, new WandContainerProvider(itemStack), buffer -> buffer.writeItemStack(itemStack));
                 } else {
                     playerIn.setActiveHand(handIn);
@@ -89,10 +99,10 @@ public class WandItem extends BaseItem {
         return true;
     }
 
-    private static void cast(World world, PlayerEntity caster, ItemStack wandStack) {
-        WandProperty wandProperty = WandProperty.getPropertyNotNull(wandStack, caster.getRNG());
-        if (wandProperty.getCooldown() > 0) return;
-        WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandProperty, new WandInventory(wandStack));
+    private void cast(World world, PlayerEntity caster, ItemStack wandStack) {
+        WandData wandData = new WandData(wandStack);
+        if (wandData.getCooldown() > 0) return;
+        WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandData, new WandInventory(wandStack));
         castingHandler.cast(world, caster).forEach(world::addEntity);
     }
 
@@ -102,17 +112,13 @@ public class WandItem extends BaseItem {
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
         if (entityIn instanceof PlayerEntity) {
-            WandProperty wandProperty = WandProperty.getPropertyNotNull(stack, ((PlayerEntity) entityIn).getRNG());
-            boolean flush = false;
-            if (wandProperty.getCooldown() > 0) {
-                wandProperty.setCooldown(wandProperty.getCooldown() - 1, false);
-                flush = true;
+            WandData wandData = new WandData(stack);
+            if (wandData.getCooldown() > 0) {
+                wandData.setCooldown(wandData.getCooldown() - 1);
             }
-            if (wandProperty.getMana() < wandProperty.getManaMax()) {
-                wandProperty.setMana(wandProperty.getMana() + wandProperty.getManaChargeSpeed() / 20f, false);
-                flush = true;
+            if (wandData.getMana() < wandData.getManaMax()) {
+                wandData.setMana(wandData.getMana() + wandData.getManaChargeSpeed() / 20f);
             }
-            if (flush) wandProperty.writeProperty();
         }
     }
 
@@ -125,12 +131,10 @@ public class WandItem extends BaseItem {
 
     @Override
     public double getDurabilityForDisplay(ItemStack stack) {
-        WandProperty property = WandProperty.getPropertyNullable(stack);
-        if (property == null) {
+        WandData property = new WandData(stack);
+        if (property.getManaMax() == 0)
             return super.getDurabilityForDisplay(stack);
-        } else {
-            return 1.0 - (double) property.getMana() / (double) property.getManaMax();
-        }
+        return 1.0 - (double) property.getMana() / (double) property.getManaMax();
     }
 
     @Override
@@ -142,23 +146,16 @@ public class WandItem extends BaseItem {
     @Override
     public void addInformation(ItemStack wandStack, @Nullable World worldIn, List<ITextComponent> tooltip, ITooltipFlag flagIn) {
         List<ITextComponent> wandPropertyInfo = new ArrayList<>();
-        if (wandStack.hasTag()) {
-            CompoundNBT wandTag = wandStack.getTag();
-            if (wandTag.contains("Wand")) {
-                wandTag = wandTag.getCompound("Wand");
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.shuffle", String.valueOf(wandTag.getBoolean("Shuffle"))));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.casts", wandTag.getByte("Casts")));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.cast_delay", wandTag.getInt("CastDelay") / 20.0));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.recharge_time", wandTag.getInt("RechargeTime") / 20.0));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_max", wandTag.getInt("ManaMax")));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_charge_speed", wandTag.getInt("ManaChargeSpeed")));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.capacity", wandTag.getByte("Capacity")));
-                wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.spread", wandTag.getFloat("Spread")));
-                tooltip.addAll(wandPropertyInfo);
-                return;
-            }
-        }
-        tooltip.add(new TranslationTextComponent("desc.noitacraft.wand.uninitialized"));
+        WandData wandData = new WandData(wandStack);
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.shuffle", String.valueOf(wandData.isShuffle())));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.casts", wandData.getCasts()));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.cast_delay", wandData.getCastDelay() / 20.0));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.recharge_time", wandData.getRechargeTime() / 20.0));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_max", wandData.getManaMax()));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.mana_charge_speed", wandData.getManaChargeSpeed()));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.capacity", wandData.getCapacity()));
+        wandPropertyInfo.add(new TranslationTextComponent("desc.noitacraft.wand.spread", wandData.getSpread()));
+        tooltip.addAll(wandPropertyInfo);
     }
 
     private static class WandContainerProvider implements INamedContainerProvider {

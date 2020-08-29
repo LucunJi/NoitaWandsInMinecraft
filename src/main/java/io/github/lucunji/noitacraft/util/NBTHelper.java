@@ -5,10 +5,7 @@ import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.INBTType;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NumberNBT;
+import net.minecraft.nbt.*;
 
 import java.util.Optional;
 import java.util.UUID;

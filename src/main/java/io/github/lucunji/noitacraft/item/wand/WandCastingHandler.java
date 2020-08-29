@@ -5,7 +5,7 @@ import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
 import io.github.lucunji.noitacraft.spell.SpellTree;
-import io.github.lucunji.noitacraft.spell.iterator.OrderedWandSpellPoolIterator;
+import io.github.lucunji.noitacraft.spell.iterator.WandSpellPoolIterator;
 import io.github.lucunji.noitacraft.spell.iterator.SpellPoolIterator;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
@@ -18,25 +18,25 @@ import java.util.List;
 public class WandCastingHandler {
 
     private final ItemStack wandStack;
-    private final WandProperty wandProperty;
+    private final WandData wandData;
     private final WandInventory wandInventory;
 
-    public WandCastingHandler(ItemStack wandStack, WandProperty wandProperty, WandInventory wandInventory) {
+    public WandCastingHandler(ItemStack wandStack, WandData wandData, WandInventory wandInventory) {
         this.wandStack = wandStack;
-        this.wandProperty = wandProperty;
+        this.wandData = wandData;
         this.wandInventory = wandInventory;
     }
 
     public List<SpellEntityBase> cast(World world, PlayerEntity caster) {
-        if (wandProperty.isShuffle()) {
+        if (wandData.isShuffle()) {
             caster.sendMessage(new StringTextComponent("§cShuffling wand is not supported yet!§r"));
             return new ArrayList<>();
         }
 
         List<SpellEntityBase> entities = new ArrayList<>();
-        SpellPoolIterator spellPoolIterator = getSpellPoll(wandProperty, wandInventory);
+        SpellPoolIterator spellPoolIterator = getSpellPoll(wandData, wandInventory);
 
-        SpellTree spellTree = new SpellTree(spellPoolIterator, (int) wandProperty.getMana());
+        SpellTree spellTree = new SpellTree(spellPoolIterator, (int) wandData.getMana());
         spellTree.flatten().forEach((iSpellEnumListPair -> {
             ISpellEnum iSpellEnum = iSpellEnumListPair.getFirst();
             List<ISpellEnum> spellEnumList = iSpellEnumListPair.getSecond();
@@ -59,25 +59,24 @@ public class WandCastingHandler {
             }
         }));
 
-        int coolDown = spellTree.getTotalDelay() + spellTree.getTotalRechargeTime() + wandProperty.getCastDelay();
+        int coolDown = spellTree.getTotalDelay() + spellTree.getTotalRechargeTime() + wandData.getCastDelay();
         if (!spellPoolIterator.hasNext()) {
             spellPoolIterator.reset();
         }
         if (spellPoolIterator.getResetCount() > 0) {
-            coolDown += wandProperty.getRechargeTime();
+            coolDown += wandData.getRechargeTime();
         }
-        wandProperty.setCooldown(coolDown, false);
-        wandProperty.setMana(wandProperty.getMana() - spellTree.getTotalMana(), false);
-        wandProperty.writeProperty();
+        wandData.setCooldown(coolDown);
+        wandData.setMana(wandData.getMana() - spellTree.getTotalMana());
 
         return entities;
     }
 
-    private SpellPoolIterator getSpellPoll(WandProperty wandProperty, WandInventory wandInventory) {
-        if (wandProperty.isShuffle()) {
+    private SpellPoolIterator getSpellPoll(WandData wandData, WandInventory wandInventory) {
+        if (wandData.isShuffle()) {
             return null;
         } else {
-            return new OrderedWandSpellPoolIterator(wandProperty, wandInventory);
+            return new WandSpellPoolIterator(wandData, wandInventory);
         }
     }
 }

@@ -24,6 +24,9 @@ public class WandUseEventHandler {
         }
     }
 
+    /**
+     * Cancel out slowdown of movement caused by using wands
+     */
     @SubscribeEvent
     public static void onInputUpdateEvent(final InputUpdateEvent event) {
         PlayerEntity player = event.getPlayer();
