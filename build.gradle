@@ -109,6 +109,12 @@ dependencies {
     // http://www.gradle.org/docs/current/userguide/artifact_dependencies_tutorial.html
     // http://www.gradle.org/docs/current/userguide/dependency_management.html
 
+    testImplementation(platform('org.junit:junit-bom:5.6.2'))
+    testImplementation('org.junit.jupiter:junit-jupiter')
+}
+
+test {
+    useJUnitPlatform()
 }
 
 // Example for how to get properties into the manifest for reading by the runtime..
