@@ -2,12 +2,12 @@ package io.github.lucunji.noitacraft.entity.spell;
 
 import io.github.lucunji.noitacraft.spell.ISpellEnum;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
-import io.github.lucunji.noitacraft.spell.SpellTree;
-import io.github.lucunji.noitacraft.spell.iterator.ProjectileSpellPoolIterator;
-import io.github.lucunji.noitacraft.util.CastHelper;
+import io.github.lucunji.noitacraft.spell.cast.CastHelper;
+import io.github.lucunji.noitacraft.spell.cast.TriggeredSpellPoolVisitor;
 import io.github.lucunji.noitacraft.util.MathHelper;
 import io.github.lucunji.noitacraft.util.NBTHelper;
 import io.github.lucunji.noitacraft.util.NBTHelper.NBTTypes;
+import javafx.util.Pair;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.IProjectile;
@@ -61,7 +61,7 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
 
         this.hasTrigger = NBTHelper.getBoolean(compound, "HasTrigger").orElse(true);
         this.hasTimer = NBTHelper.getBoolean(compound, "HasTimer").orElse(true);
-        this.castList = CastHelper.spellListFromNBT(compound.getList("CastList", NBTTypes.STRING.ordinal()));
+        this.castList = NBTHelper.spellListFromNBT(compound.getList("CastList", NBTTypes.STRING.ordinal()));
     }
 
     @Override
@@ -74,7 +74,7 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         compound.putBoolean("HasTimer", this.hasTimer);
 
         if (this.castList != null && !this.castList.isEmpty() && (this.hasTrigger || this.hasTimer)) {
-            compound.put("CastList", CastHelper.spellNBTFromList(castList));
+            compound.put("CastList", NBTHelper.spellNBTFromList(castList));
         }
     }
 
@@ -140,31 +140,24 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     }
 
     private void castSpell(Vec3d castVec) {
-        ProjectileSpellPoolIterator iterator = new ProjectileSpellPoolIterator(castList);
-        while (iterator.hasNext()) {
-            SpellTree spellTree = new SpellTree(iterator);
-            spellTree.flatten().forEach((iSpellEnumListPair -> {
-                ISpellEnum iSpellEnum = iSpellEnumListPair.getFirst();
-                List<ISpellEnum> spellEnumList = iSpellEnumListPair.getSecond();
+        TriggeredSpellPoolVisitor visitor = new TriggeredSpellPoolVisitor(this.castList);
+        CastHelper.CastResult castResult = CastHelper.processSpellList(visitor);
+        for (Pair<ProjectileSpell, List<ISpellEnum>> pair : castResult.getSpell2TriggeredSpellList()) {
+            ProjectileSpell spell = pair.getKey();
+            SpellEntityBase spellEntity = spell.entitySummoner().apply(world, caster);
+            spellEntity.setCastList(pair.getValue());
 
-                if (iSpellEnum instanceof ProjectileSpell) {
-                    ProjectileSpell projectileSpell = (ProjectileSpell) iSpellEnum;
-                    SpellEntityBase entityBase = projectileSpell.entitySummoner().apply(world, this.caster);
+            float speed = 0;
+            int speedMin = spell.getSpeedMin();
+            int speedMax = spell.getSpeedMax();
+            if (speedMin < speedMax)
+                speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
+            speed += 200f;
+            speed /= 600f;
 
-                    float speed = 0;
-                    int speedMin = projectileSpell.getSpeedMin();
-                    int speedMax = projectileSpell.getSpeedMax();
-                    if (speedMin < speedMax)
-                        speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
-                    speed += 200f;
-                    speed /= 600f;
-
-                    entityBase.shoot(castVec.getX(), castVec.getY(), castVec.getZ(), speed, 1.0f);
-                    entityBase.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
-                    entityBase.setCastList(spellEnumList);
-                    this.world.addEntity(entityBase);
-                }
-            }));
+            spellEntity.setPosition(this.getPosX(), this.getPosY(), this.getPosZ());
+            spellEntity.shoot(castVec.getX(), castVec.getY(), castVec.getZ(), speed, 1.0f);
+            world.addEntity(spellEntity);
         }
     }
 

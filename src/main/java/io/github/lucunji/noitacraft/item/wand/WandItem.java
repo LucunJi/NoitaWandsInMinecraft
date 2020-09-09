@@ -1,11 +1,17 @@
 package io.github.lucunji.noitacraft.item.wand;
 
 import io.github.lucunji.noitacraft.NoitaCraft;
+import io.github.lucunji.noitacraft.entity.spell.SpellEntityBase;
 import io.github.lucunji.noitacraft.inventory.WandInventory;
 import io.github.lucunji.noitacraft.inventory.container.WandContainer;
 import io.github.lucunji.noitacraft.item.BaseItem;
 import io.github.lucunji.noitacraft.item.NoitaItems;
+import io.github.lucunji.noitacraft.spell.ISpellEnum;
+import io.github.lucunji.noitacraft.spell.ProjectileSpell;
+import io.github.lucunji.noitacraft.spell.cast.CastHelper;
+import io.github.lucunji.noitacraft.spell.cast.WandSpellPoolVisitor;
 import io.github.lucunji.noitacraft.util.NBTHelper;
+import javafx.util.Pair;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.Entity;
@@ -44,11 +50,7 @@ import java.util.List;
 public class WandItem extends BaseItem {
     public WandItem(Properties properties) {
         super(properties.maxStackSize(1).group(NoitaCraft.SETUP.WAND_GROUP));
-        this.addPropertyOverride(new ResourceLocation(NoitaCraft.MOD_ID, "texture_id"), (itemStack, world, entity) ->
-                NBTHelper.getCompound(itemStack).flatMap(stackTag ->
-                    NBTHelper.getCompound(stackTag, "Wand").flatMap(compoundNBT ->
-                            NBTHelper.getInt(compoundNBT, "TextureID"))).orElse(-1)
-        );
+        this.addPropertyOverride(new ResourceLocation(NoitaCraft.MOD_ID, "texture_id"), (itemStack, world, entity) -> new WandData(itemStack).getTextureID());
     }
 
 
@@ -77,6 +79,10 @@ public class WandItem extends BaseItem {
         }
     }
 
+    /**
+     * Only effective in main hand.
+     * Shift + right click = open GUI to edit wand
+     */
     @Override
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemStack = playerIn.getHeldItem(handIn);
@@ -102,12 +108,37 @@ public class WandItem extends BaseItem {
     private void cast(World world, PlayerEntity caster, ItemStack wandStack) {
         WandData wandData = new WandData(wandStack);
         if (wandData.getCooldown() > 0) return;
-        WandCastingHandler castingHandler = new WandCastingHandler(wandStack, wandData, new WandInventory(wandStack));
-        castingHandler.cast(world, caster).forEach(world::addEntity);
+
+        int oldPoolPointer = wandData.getSpellPoolPointer();
+        CastHelper.CastResult castResult = CastHelper.processSpellList(new WandSpellPoolVisitor(wandData, new WandInventory(wandStack)), wandData.getMana());
+        wandData.setMana(wandData.getMana() - castResult.getManaDrain());
+        if (wandData.getSpellPoolPointer() < wandData.getSpellPool().length && wandData.getSpellPoolPointer() > oldPoolPointer) {
+            wandData.setCooldown(castResult.getRechargeTime());
+        } else {
+            wandData.setCooldown(castResult.getCastDelay());
+        }
+
+        for (Pair<ProjectileSpell, List<ISpellEnum>> pair : castResult.getSpell2TriggeredSpellList()) {
+            ProjectileSpell spell = pair.getKey();
+            SpellEntityBase spellEntity = spell.entitySummoner().apply(world, caster);
+            spellEntity.setCastList(pair.getValue());
+
+            float speed = 0;
+            int speedMin = spell.getSpeedMin();
+            int speedMax = spell.getSpeedMax();
+            if (speedMin < speedMax)
+                speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
+            speed += 200f;
+            speed /= 600f;
+
+            spellEntity.shoot(caster, caster.rotationPitch, caster.rotationYaw, speed, 1.0f);
+            world.addEntity(spellEntity);
+        }
     }
 
     /**
      * Cooldown and Mana regen.
+     * If wand is not in main hand, rest its spell pool.
      */
     @Override
     public void inventoryTick(ItemStack stack, World worldIn, Entity entityIn, int itemSlot, boolean isSelected) {
@@ -118,6 +149,10 @@ public class WandItem extends BaseItem {
             }
             if (wandData.getMana() < wandData.getManaMax()) {
                 wandData.setMana(wandData.getMana() + wandData.getManaChargeSpeed() / 20f);
+            }
+
+            if (((PlayerEntity) entityIn).getHeldItemMainhand() != stack) {
+                wandData.resetSpellPool();
             }
         }
     }

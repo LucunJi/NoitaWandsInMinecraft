@@ -6,12 +6,6 @@
   "overrides": [
     {
       "predicate": {
-        "noitacraft:texture_id" : -1
-      },
-      "model": "noitacraft:item/wand/wand-1"
-    },
-    {
-      "predicate": {
         "noitacraft:texture_id" : 0
       },
       "model": "noitacraft:item/wand/wand0"
@@ -69,6 +63,12 @@
         "noitacraft:texture_id" : 9
       },
       "model": "noitacraft:item/wand/wand9"
+    },
+    {
+      "predicate": {
+        "noitacraft:texture_id" : 10
+      },
+      "model": "noitacraft:item/wand/wand10"
     }
   ]
 }

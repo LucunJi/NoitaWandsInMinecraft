@@ -8,11 +8,11 @@ import net.minecraft.util.text.TranslationTextComponent;
 
 public class DefaultWands {
     public static final ItemStack HANDGUN = makeWandStack(4, false, 30, (byte)1,
-            0f, 8, (byte)3, 0, 100,
+            0f, 8, (byte)3, 1, 100,
             NoitaItems.SPELL_SPARK_BOLT, NoitaItems.SPELL_SPARK_BOLT).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
 
     public static final ItemStack BOMB_WAND = makeWandStack(2, false, 10, (byte)1,
-            0f, 1, (byte)1, 1, 100,
+            0f, 1, (byte)1, 2, 100,
             NoitaItems.SPELL_BOMB).setDisplayName(new TranslationTextComponent("item.noitacraft.wand.starting"));
 
     public static ItemStack makeWandStack(int castDelay, boolean shuffle, int manaChargeSpeed, byte casts,
@@ -29,7 +29,6 @@ public class DefaultWands {
         wandData.setRechargeTime(rechargeTime);
         wandData.setCapacity(capacity);
         wandData.setTextureID(textureID);
-        wandData.setNumberCasted(0);
         wandData.setManaMax(manaMax);
 
         WandInventory inventory = new WandInventory(itemStack);

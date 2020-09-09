@@ -146,7 +146,6 @@ public enum ProjectileSpell implements ISpellEnum {
         this.criticalChance = criticalChance;
         this.uses = uses;
         this.entitySummoner = entitySummoner;
-        SpellManager.SPELL_MAP.put(this.name(), this);
         this.castNumber = castNumber;
     }
 

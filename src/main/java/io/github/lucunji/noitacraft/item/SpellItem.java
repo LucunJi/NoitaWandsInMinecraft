@@ -36,4 +36,9 @@ public class SpellItem extends BaseItem {
     public ISpellEnum getSpell() {
         return spell;
     }
+
+    @Override
+    public int getMaxDamage(ItemStack stack) {
+        return spell.getUses();
+    }
 }

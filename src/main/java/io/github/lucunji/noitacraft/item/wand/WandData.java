@@ -1,9 +1,11 @@
 package io.github.lucunji.noitacraft.item.wand;
 
+import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.util.math.MathHelper;
 
+import java.util.Collections;
 import java.util.Random;
 
 public class WandData {
@@ -25,9 +27,43 @@ public class WandData {
 
         this.setCooldown(0);
         this.setMana(this.getManaMax());
-        this.setNumberCasted(0);
+    }
 
+    /**
+     * Spell Pool Operations
+     * spell pool is an array of bytes indicating the ordering of remaining spells in wand inventory
+     * an additional pointer indicates how much of the pool is used
+     **/
 
+    public byte[] getSpellPool() {
+        return wandTag.getByteArray("SpellPool");
+    }
+
+    public void setSpellPoll(byte[] pool) {
+        wandTag.putByteArray("SpellPool", pool);
+    }
+
+    public byte getSpellPoolPointer() {
+        return wandTag.getByte("SpellPoolPointer");
+    }
+
+    public void setSpellPoolPointer(byte index) {
+        wandTag.putByte("SpellPoolPointer", index);
+    }
+
+    public void resetSpellPool() {
+        if (getSpellPoolPointer() > 0) {
+            setSpellPoolPointer((byte)0);
+        }
+    }
+
+    public void refreshWandPool() {
+        if (this.isShuffle()) {
+            ByteArrayList pool = ByteArrayList.wrap(getSpellPool());
+            Collections.shuffle(pool);
+            wandTag.putByteArray("SpellPool", pool.toByteArray());
+        }
+        resetSpellPool();
     }
 
     /** Getters **/
@@ -69,10 +105,6 @@ public class WandData {
 
     public float getMana() {
         return wandTag.getFloat("Mana");
-    }
-
-    public int getNumberCasted() {
-        return wandTag.getByte("NumberCasted");
     }
 
     public int getTextureID() {
@@ -118,10 +150,6 @@ public class WandData {
 
     public void setMana(float mana) {
         wandTag.putFloat("Mana", mana);
-    }
-
-    public void setNumberCasted(int numberCasted) {
-        wandTag.putInt("NumberCasted", numberCasted);
     }
 
     public void setTextureID(int textureID) {

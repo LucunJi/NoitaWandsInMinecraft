@@ -1,18 +1,42 @@
 package io.github.lucunji.noitacraft.util;
 
+import io.github.lucunji.noitacraft.spell.ISpellEnum;
+import io.github.lucunji.noitacraft.spell.SpellManager;
 import net.minecraft.crash.CrashReport;
 import net.minecraft.crash.CrashReportCategory;
 import net.minecraft.crash.ReportedException;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
+import org.apache.logging.log4j.LogManager;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Consumer;
 
 @SuppressWarnings("ConstantConditions")
 public class NBTHelper {
+
+    public static List<ISpellEnum> spellListFromNBT(ListNBT listNBT) {
+        List<ISpellEnum> spellEnumList = new ArrayList<>();
+        for (int i = 0; i < listNBT.size(); ++i) {
+            String spellName = listNBT.getString(i);
+            ISpellEnum spellEnum = SpellManager.getSpellByName(spellName);
+            if (spellEnum != null) {
+                spellEnumList.add(spellEnum);
+                LogManager.getLogger().warn("Not matching spell for name: \"" + spellName + "\"");
+            }
+        }
+        return spellEnumList;
+    }
+
+    public static ListNBT spellNBTFromList(List<ISpellEnum> spellEnumList) {
+        ListNBT listNBT = new ListNBT();
+        spellEnumList.stream().map(ISpellEnum::name).map(StringNBT::valueOf).forEach(listNBT::add);
+        return listNBT;
+    }
 
     public enum NBTTypes {
         END, BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, BYTE_ARRAY, STRING, LIST, COMPOUND, INT_ARRAY, LONG_ARRAY
