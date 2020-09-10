@@ -10,7 +10,6 @@ import io.github.lucunji.noitacraft.spell.ISpellEnum;
 import io.github.lucunji.noitacraft.spell.ProjectileSpell;
 import io.github.lucunji.noitacraft.spell.cast.CastHelper;
 import io.github.lucunji.noitacraft.spell.cast.WandSpellPoolVisitor;
-import io.github.lucunji.noitacraft.util.NBTHelper;
 import javafx.util.Pair;
 import net.minecraft.client.entity.player.ClientPlayerEntity;
 import net.minecraft.client.util.ITooltipFlag;
@@ -33,11 +32,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.fml.network.NetworkHooks;
+import org.apache.logging.log4j.LogManager;
 
 import javax.annotation.Nullable;
 import java.awt.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 /**
  * About Wand:
@@ -106,18 +108,26 @@ public class WandItem extends BaseItem {
     }
 
     private void cast(World world, PlayerEntity caster, ItemStack wandStack) {
+        LogManager.getLogger().debug("Start casting...");
         WandData wandData = new WandData(wandStack);
-        if (wandData.getCooldown() > 0) return;
+        if (wandData.getCooldown() > 0) {
+            LogManager.getLogger().debug("Cooldown is not over!");
+            return;
+        }
+        LogManager.getLogger().debug("Spell pool is {}", Arrays.toString(wandData.getSpellPool()));
+        LogManager.getLogger().debug("Current spell pool pointer: {}", wandData.getSpellPoolPointer());
 
         int oldPoolPointer = wandData.getSpellPoolPointer();
         CastHelper.CastResult castResult = CastHelper.processSpellList(new WandSpellPoolVisitor(wandData, new WandInventory(wandStack)), wandData.getMana());
         wandData.setMana(wandData.getMana() - castResult.getManaDrain());
         if (wandData.getSpellPoolPointer() < wandData.getSpellPool().length && wandData.getSpellPoolPointer() > oldPoolPointer) {
-            wandData.setCooldown(castResult.getRechargeTime());
+            wandData.setCooldown(castResult.getCastDelay() + wandData.getCastDelay());
         } else {
-            wandData.setCooldown(castResult.getCastDelay());
+            wandData.setCooldown(Math.max(castResult.getRechargeTime() + wandData.getRechargeTime(), castResult.getCastDelay() + wandData.getCastDelay()));
+            wandData.refreshWandPool();
         }
 
+        LogManager.getLogger().debug("Start summoning spells...");
         for (Pair<ProjectileSpell, List<ISpellEnum>> pair : castResult.getSpell2TriggeredSpellList()) {
             ProjectileSpell spell = pair.getKey();
             SpellEntityBase spellEntity = spell.entitySummoner().apply(world, caster);
@@ -127,13 +137,14 @@ public class WandItem extends BaseItem {
             int speedMin = spell.getSpeedMin();
             int speedMax = spell.getSpeedMax();
             if (speedMin < speedMax)
-                speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
+                speed = new Random().nextInt(speedMax - speedMin) + speedMin;
             speed += 200f;
             speed /= 600f;
 
             spellEntity.shoot(caster, caster.rotationPitch, caster.rotationYaw, speed, 1.0f);
             world.addEntity(spellEntity);
         }
+        LogManager.getLogger().debug("Casting finish!");
     }
 
     /**

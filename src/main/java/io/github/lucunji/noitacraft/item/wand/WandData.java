@@ -133,7 +133,7 @@ public class WandData {
     }
 
     public void setManaChargeSpeed(int manaChargeSpeed) {
-        wandTag.putInt("ManaRechargeSpeed", manaChargeSpeed);
+        wandTag.putInt("ManaChargeSpeed", manaChargeSpeed);
     }
 
     public void setCapacity(byte capacity) {
@@ -145,11 +145,11 @@ public class WandData {
     }
 
     public void setCooldown(int cooldown) {
-        wandTag.putInt("Cooldown", cooldown);
+        wandTag.putInt("Cooldown", Math.max(0, cooldown));
     }
 
     public void setMana(float mana) {
-        wandTag.putFloat("Mana", mana);
+        wandTag.putFloat("Mana", MathHelper.clamp(mana, 0, getManaMax()));
     }
 
     public void setTextureID(int textureID) {

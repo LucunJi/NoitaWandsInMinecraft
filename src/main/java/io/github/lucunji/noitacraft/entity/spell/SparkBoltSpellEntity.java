@@ -23,7 +23,6 @@ public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();
-        this.caster = caster;
     }
 
     @Override

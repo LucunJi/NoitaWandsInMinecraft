@@ -18,17 +18,13 @@ import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.*;
 import net.minecraft.world.World;
-import net.minecraft.world.server.ServerWorld;
 import net.minecraftforge.fml.network.NetworkHooks;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import javax.annotation.Nullable;
+import java.util.*;
 
 public abstract class SpellEntityBase extends Entity implements IProjectile {
     protected UUID casterUUID;
-    protected LivingEntity caster;
 
     protected boolean inGround;
     protected int age;
@@ -41,7 +37,6 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     public SpellEntityBase(EntityType<?> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.casterUUID = null;
-        this.caster = null;
         this.inGround = false;
         this.age = 0;
         this.castList = new ArrayList<>();
@@ -53,9 +48,6 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     @Override
     protected void readAdditional(CompoundNBT compound) {
         this.casterUUID = compound.getUniqueId("Caster");
-        if (!this.world.isRemote() && this.casterUUID != null) {
-            ((ServerWorld) this.world).getEntityByUuid(this.casterUUID);
-        }
         this.inGround = compound.getBoolean("inGround");
         this.age = compound.getInt("Age");
 
@@ -144,14 +136,14 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         CastHelper.CastResult castResult = CastHelper.processSpellList(visitor);
         for (Pair<ProjectileSpell, List<ISpellEnum>> pair : castResult.getSpell2TriggeredSpellList()) {
             ProjectileSpell spell = pair.getKey();
-            SpellEntityBase spellEntity = spell.entitySummoner().apply(world, caster);
+            SpellEntityBase spellEntity = spell.entitySummoner().apply(world, this.getCaster());
             spellEntity.setCastList(pair.getValue());
 
             float speed = 0;
             int speedMin = spell.getSpeedMin();
             int speedMax = spell.getSpeedMax();
             if (speedMin < speedMax)
-                speed = caster.getRNG().nextInt(speedMax - speedMin) + speedMin;
+                speed = new Random().nextInt(speedMax - speedMin) + speedMin;
             speed += 200f;
             speed /= 600f;
 
@@ -201,8 +193,10 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
         }
     }
 
+    @Nullable
     public LivingEntity getCaster() {
-        return caster;
+        if (this.casterUUID == null) return null;
+        return world.getPlayerByUuid(casterUUID);
     }
 
     protected int getAgeToCast() {
@@ -219,9 +213,5 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
             this.hasTrigger = false;
             this.hasTimer = false;
         }
-//        if (this.hasTimer) {
-//            this.castSpellTimer();
-//            this.hasTimer = false;
-//        }
     }
 }

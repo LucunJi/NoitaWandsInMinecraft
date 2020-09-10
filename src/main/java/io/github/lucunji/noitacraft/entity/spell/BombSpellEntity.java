@@ -26,7 +26,6 @@ public class BombSpellEntity extends SpellEntityBase {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();
-        this.caster = caster;
     }
 
     @Override
@@ -127,8 +126,8 @@ public class BombSpellEntity extends SpellEntityBase {
     @Override
     protected void onAgeExpire() {
         if (!this.world.isRemote()) {
-            this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.caster), this.getPosX(), this.getPosY(), this.getPosZ(),
-                    this.caster.getActivePotionEffect(NoitaEffects.BERSERK) != null ? 6 : 3, true, Explosion.Mode.BREAK);
+            this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.getCaster()), this.getPosX(), this.getPosY(), this.getPosZ(),
+                    this.getCaster() == null || this.getCaster().getActivePotionEffect(NoitaEffects.BERSERK) == null ? 3 : 6, true, Explosion.Mode.BREAK);
             super.onAgeExpire();
         }
     }
