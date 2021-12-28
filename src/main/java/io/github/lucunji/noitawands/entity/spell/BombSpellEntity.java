@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.MoverType;
+import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.particles.ParticleTypes;
 import net.minecraft.util.DamageSource;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -34,7 +35,7 @@ public class BombSpellEntity extends SpellEntityBase {
         float y = -MathHelper.sin(pitch * ((float)Math.PI / 180F));
         float z = MathHelper.cos(yaw * ((float)Math.PI / 180F)) * MathHelper.cos(pitch * ((float)Math.PI / 180F));
         this.shoot(x, y, z, velocity, inaccuracy);
-        this.setMotion(this.getMotion().add(shooter.getMotion().x, shooter.onGround ? 0.0D : shooter.getMotion().y, shooter.getMotion().z));
+        this.setMotion(this.getMotion().add(shooter.getMotion().x, shooter.isOnGround() ? 0.0D : shooter.getMotion().y, shooter.getMotion().z));
     }
 
     @Override
@@ -49,6 +50,9 @@ public class BombSpellEntity extends SpellEntityBase {
     }
 
 
+    /**
+     * Copied from {@link  ItemEntity#tick()}
+     */
     public void tick() {
         super.tick();
 
@@ -60,7 +64,7 @@ public class BombSpellEntity extends SpellEntityBase {
         if (this.world.isRemote) {
             this.noClip = false;
         } else {
-            this.noClip = !this.world.func_226669_j_(this);
+            this.noClip = !this.world.hasNoCollisions(this);
             if (this.noClip) {
                 this.pushOutOfBlocks(this.getPosX(), (this.getBoundingBox().minY + this.getBoundingBox().maxY) / 2.0D, this.getPosZ());
             }
@@ -80,7 +84,7 @@ public class BombSpellEntity extends SpellEntityBase {
             }
         }
 
-        BlockPos blockpos = new BlockPos(this);
+        BlockPos blockpos = this.getPosition();
         BlockState blockstate = this.world.getBlockState(blockpos);
         if (!blockstate.isAir(this.world, blockpos)) {
             VoxelShape voxelshape = blockstate.getCollisionShape(this.world, blockpos);
@@ -126,8 +130,13 @@ public class BombSpellEntity extends SpellEntityBase {
     @Override
     protected void onAgeExpire() {
         if (!this.world.isRemote()) {
-            this.world.createExplosion(this, DamageSource.causeExplosionDamage(this.getCaster()), this.getPosX(), this.getPosY(), this.getPosZ(),
-                    this.getCaster() == null || this.getCaster().getActivePotionEffect(NoitaEffects.BERSERK) == null ? 3 : 6, true, Explosion.Mode.BREAK);
+            this.world.createExplosion(
+                    this,
+                    DamageSource.causeExplosionDamage(this.getCaster()),
+                    null,
+                    this.getPosX(), this.getPosY(), this.getPosZ(),
+                    this.getCaster() == null || this.getCaster().getActivePotionEffect(NoitaEffects.BERSERK) == null ? 3 : 6,
+                    true, Explosion.Mode.BREAK);
             super.onAgeExpire();
         }
     }

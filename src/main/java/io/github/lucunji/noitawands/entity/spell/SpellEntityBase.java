@@ -9,8 +9,8 @@ import io.github.lucunji.noitawands.util.NBTHelper;
 import io.github.lucunji.noitawands.util.NBTHelper.NBTTypes;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
-import net.minecraft.entity.IProjectile;
 import net.minecraft.entity.LivingEntity;
+import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.nbt.CompoundNBT;
 import net.minecraft.network.IPacket;
 import net.minecraft.particles.ParticleTypes;
@@ -24,7 +24,7 @@ import org.apache.commons.lang3.tuple.Pair;
 import javax.annotation.Nullable;
 import java.util.*;
 
-public abstract class SpellEntityBase extends Entity implements IProjectile {
+public abstract class SpellEntityBase extends ThrowableEntity {
     protected UUID casterUUID;
 
     protected boolean inGround;
@@ -35,7 +35,7 @@ public abstract class SpellEntityBase extends Entity implements IProjectile {
     protected boolean hasTrigger;
     protected boolean hasTimer;
 
-    public SpellEntityBase(EntityType<?> entityTypeIn, World worldIn) {
+    public SpellEntityBase(EntityType<? extends SpellEntityBase> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
         this.casterUUID = null;
         this.inGround = false;

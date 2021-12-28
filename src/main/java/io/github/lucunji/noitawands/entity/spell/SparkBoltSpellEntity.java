@@ -14,12 +14,12 @@ import net.minecraft.world.World;
 
 public class SparkBoltSpellEntity extends SpellEntityMagicalBase {
 
-    public SparkBoltSpellEntity(EntityType<?> type, World worldIn) {
+    public SparkBoltSpellEntity(EntityType<? extends SparkBoltSpellEntity> type, World worldIn) {
         super(type, worldIn);
         this.inGround = false;
     }
 
-    public SparkBoltSpellEntity(EntityType<?> type, LivingEntity caster, World world) {
+    public SparkBoltSpellEntity(EntityType<? extends SparkBoltSpellEntity> type, LivingEntity caster, World world) {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();

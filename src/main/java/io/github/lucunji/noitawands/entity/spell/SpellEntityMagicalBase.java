@@ -3,6 +3,7 @@ package io.github.lucunji.noitawands.entity.spell;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.projectile.ProjectileHelper;
+import net.minecraft.entity.projectile.ThrowableEntity;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceContext;
 import net.minecraft.util.math.RayTraceResult;
@@ -12,7 +13,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
 public abstract class SpellEntityMagicalBase extends SpellEntityBase {
-    public SpellEntityMagicalBase(EntityType<?> entityTypeIn, World worldIn) {
+    public SpellEntityMagicalBase(EntityType<? extends SpellEntityMagicalBase> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
     }
 
@@ -22,7 +23,7 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
         float y = -MathHelper.sin(pitch * ((float)Math.PI / 180F));
         float z = MathHelper.cos(yaw * ((float)Math.PI / 180F)) * MathHelper.cos(pitch * ((float)Math.PI / 180F));
         this.shoot(x, y, z, velocity, inaccuracy);
-        this.setMotion(this.getMotion().add(shooter.getMotion().x, shooter.onGround ? 0.0D : shooter.getMotion().y, shooter.getMotion().z));
+        this.setMotion(this.getMotion().add(shooter.getMotion().x, shooter.isOnGround() ? 0.0D : shooter.getMotion().y, shooter.getMotion().z));
     }
 
     @Override
@@ -36,13 +37,17 @@ public abstract class SpellEntityMagicalBase extends SpellEntityBase {
         this.prevRotationPitch = this.rotationPitch;
     }
 
+    /**
+     * Copied from {@link ThrowableEntity#tick()}
+     */
     @Override
     public void tick() {
         super.tick();
 
-        RayTraceResult rayTraceResult = ProjectileHelper.rayTrace(this, this.getBoundingBox().expand(this.getMotion()).grow(1), entity ->
-                !entity.isSpectator() && entity.canBeCollidedWith() && entity != this.getCaster(),
-                RayTraceContext.BlockMode.COLLIDER, true);
+        RayTraceResult rayTraceResult = ProjectileHelper.func_234618_a_(
+                this,
+                entity -> !entity.isSpectator() && entity.canBeCollidedWith() && entity != this.getCaster()
+        );
         if (rayTraceResult.getType() != RayTraceResult.Type.MISS) {
             this.onHit(rayTraceResult);
             this.isAirBorne = true;

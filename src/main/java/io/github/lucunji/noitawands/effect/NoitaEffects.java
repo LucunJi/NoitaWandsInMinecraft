@@ -1,8 +1,8 @@
 package io.github.lucunji.noitawands.effect;
 
 import io.github.lucunji.noitawands.NoitaWands;
-import net.minecraft.entity.SharedMonsterAttributes;
 import net.minecraft.entity.ai.attributes.AttributeModifier;
+import net.minecraft.entity.ai.attributes.Attributes;
 import net.minecraft.potion.Effect;
 import net.minecraft.potion.EffectType;
 import net.minecraftforge.event.RegistryEvent;
@@ -25,7 +25,7 @@ public class NoitaEffects {
 
     @SubscribeEvent
     public static void onEffectRegistry(final RegistryEvent.Register<Effect> event) {
-        event.getRegistry().register(new ModEffect(EffectType.BENEFICIAL, BERSERKIUM_COLOR).addAttributesModifier(SharedMonsterAttributes.ATTACK_DAMAGE, BERSERKIUM_UUID, 2, AttributeModifier.Operation.MULTIPLY_TOTAL).setRegistryName(NoitaWands.MODID, "berserk"));
+        event.getRegistry().register(new ModEffect(EffectType.BENEFICIAL, BERSERKIUM_COLOR).addAttributesModifier(Attributes.ATTACK_DAMAGE, BERSERKIUM_UUID, 2, AttributeModifier.Operation.MULTIPLY_TOTAL).setRegistryName(NoitaWands.MODID, "berserk"));
         event.getRegistry().register(new ModEffect(EffectType.BENEFICIAL, BLOOD_COLOR).setRegistryName(NoitaWands.MODID, "blood"));
     }
 }

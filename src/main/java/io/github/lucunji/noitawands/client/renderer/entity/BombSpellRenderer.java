@@ -25,7 +25,7 @@ public class BombSpellRenderer extends EntityRenderer<BombSpellEntity> {
     }
 
     @Override
-    protected int getBlockLight(BombSpellEntity entityIn, float partialTicks) {
+    protected int getBlockLight(BombSpellEntity entity, BlockPos pos) {
         return 15;
     }
 

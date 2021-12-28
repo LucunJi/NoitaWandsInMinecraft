@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRendererManager;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.vector.Matrix3f;
 import net.minecraft.util.math.vector.Matrix4f;
@@ -23,7 +24,7 @@ public class SparkBoltDoubleTriggerSpellRenderer extends EntityRenderer<SparkBol
     }
 
     @Override
-    protected int getBlockLight(SparkBoltSpellEntity entityIn, float partialTicks) {
+    protected int getBlockLight(SparkBoltSpellEntity entityIn, BlockPos pos) {
         return 15;
     }
 

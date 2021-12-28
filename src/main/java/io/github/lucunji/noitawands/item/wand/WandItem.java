@@ -18,6 +18,8 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
+import net.minecraft.item.IItemPropertyGetter;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ActionResult;
@@ -49,9 +51,10 @@ import java.util.Random;
  * Most direct operations of NBT should be kept in {@link WandData} and {@link WandInventory}
  */
 public class WandItem extends BaseItem {
+    /** TODO: fix property registry {@link net.minecraft.item.ItemModelsProperties#registerProperty} */
     public WandItem(Properties properties) {
         super(properties.maxStackSize(1).group(NoitaWands.SETUP.WAND_GROUP));
-        this.addPropertyOverride(new ResourceLocation(NoitaWands.MODID, "texture_id"), (itemStack, world, entity) -> new WandData(itemStack).getTextureID());
+//        this.addPropertyOverride(new ResourceLocation(NoitaWands.MODID, "texture_id"), (itemStack, world, entity) -> new WandData(itemStack).getTextureID());
     }
 
 
@@ -71,7 +74,7 @@ public class WandItem extends BaseItem {
     @Override
     public void onUsingTick(ItemStack stack, LivingEntity player, int count) {
         if (!player.world.isRemote() && player instanceof ServerPlayerEntity) {
-            if (!player.isShiftKeyDown()) {
+            if (!player.isSneaking()) {
                 this.cast(player.world, ((ServerPlayerEntity) player), stack);
             }
         } else {
@@ -89,7 +92,7 @@ public class WandItem extends BaseItem {
         ItemStack itemStack = playerIn.getHeldItem(handIn);
         if (!worldIn.isRemote() && playerIn instanceof ServerPlayerEntity) {
             if (handIn == Hand.MAIN_HAND && itemStack.getItem().equals(NoitaItems.WAND)) {
-                if (playerIn.isShiftKeyDown()) {
+                if (playerIn.isSneaking()) {
                     new WandData(itemStack);
                     NetworkHooks.openGui((ServerPlayerEntity) playerIn, new WandContainerProvider(itemStack), buffer -> buffer.writeItemStack(itemStack));
                 } else {

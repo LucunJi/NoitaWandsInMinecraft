@@ -11,12 +11,12 @@ import net.minecraft.world.World;
 
 public class SparkBoltDoubleTriggerSpellEntity extends SparkBoltSpellEntity {
 
-    public SparkBoltDoubleTriggerSpellEntity(EntityType<?> type, World worldIn) {
+    public SparkBoltDoubleTriggerSpellEntity(EntityType<? extends SparkBoltDoubleTriggerSpellEntity> type, World worldIn) {
         super(type, worldIn);
         this.inGround = false;
     }
 
-    public SparkBoltDoubleTriggerSpellEntity(EntityType<?> type, LivingEntity caster, World world) {
+    public SparkBoltDoubleTriggerSpellEntity(EntityType<? extends SparkBoltDoubleTriggerSpellEntity> type, LivingEntity caster, World world) {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();

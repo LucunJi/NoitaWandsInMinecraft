@@ -174,8 +174,8 @@ public class NBTHelper {
     private static CrashReport crashReport(CompoundNBT compoundNBT, String key, INBTType<?> type, ClassCastException e) {
         CrashReport crashreport = CrashReport.makeCrashReport(e, "Reading NBT data");
         CrashReportCategory crashreportcategory = crashreport.makeCategoryDepth("Corrupt NBT tag", 1);
-        crashreportcategory.addDetail("Tag type found", () -> compoundNBT.get(key).getType().func_225648_a_());
-        crashreportcategory.addDetail("Tag type expected", type::func_225648_a_);
+//        crashreportcategory.addDetail("Tag type found", () -> compoundNBT.get(key).getType().getName().func_225648_a_());
+//        crashreportcategory.addDetail("Tag type expected", type::func_225648_a_);
         crashreportcategory.addDetail("Tag name", key);
         return crashreport;
     }

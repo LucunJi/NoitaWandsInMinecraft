@@ -18,11 +18,11 @@ import net.minecraft.world.World;
 
 public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
 
-    public EnergySphereSpellEntity(EntityType<?> entityTypeIn, World worldIn) {
+    public EnergySphereSpellEntity(EntityType<? extends EnergySphereSpellEntity> entityTypeIn, World worldIn) {
         super(entityTypeIn, worldIn);
     }
 
-    public EnergySphereSpellEntity(EntityType<?> type, LivingEntity caster, World world) {
+    public EnergySphereSpellEntity(EntityType<? extends EnergySphereSpellEntity> type, LivingEntity caster, World world) {
         this(type, world);
         this.setPosition(caster.getPosX(), caster.getPosYEye() - 0.1, caster.getPosZ());
         this.casterUUID = caster.getUniqueID();
@@ -50,7 +50,7 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
         } else if (rayTraceResult.getType() == RayTraceResult.Type.BLOCK) { // Bounce
             Vector3d motion = this.getMotion();
             Direction.Axis reflectionAxis = ((BlockRayTraceResult) rayTraceResult).getFace().getAxis();
-            Vector3d normalVec = new Vector3d(((BlockRayTraceResult) rayTraceResult).getFace().getDirectionVec());
+            Vector3d normalVec = Vector3d.copy(((BlockRayTraceResult) rayTraceResult).getFace().getDirectionVec());
             /*
                180.0 - Math.acos((motion.dotProduct(normalVec))/(motion.length())) / Math.PI * 180.0 > 60.0
             =>   -acos(dot(norm)/length) / pi * 180 > -120

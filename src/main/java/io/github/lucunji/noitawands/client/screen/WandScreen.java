@@ -1,5 +1,6 @@
 package io.github.lucunji.noitawands.client.screen;
 
+import com.mojang.blaze3d.matrix.MatrixStack;
 import io.github.lucunji.noitawands.inventory.container.WandContainer;
 import net.minecraft.client.gui.screen.inventory.ContainerScreen;
 import net.minecraft.entity.player.PlayerInventory;
@@ -14,14 +15,14 @@ public class WandScreen extends ContainerScreen<WandContainer> {
     }
 
     @Override
-    public void render(int mouseX, int mouseY, float partialTicks) {
-        renderBackground();
-        super.render(mouseX, mouseY, partialTicks);
-        renderHoveredToolTip(mouseX, mouseY);
+    public void render(MatrixStack matrixStack, int mouseX, int mouseY, float partialTicks) {
+        renderBackground(matrixStack);
+        super.render(matrixStack, mouseX, mouseY, partialTicks);
+        renderHoveredTooltip(matrixStack, mouseX, mouseY);
     }
 
     @Override
-    protected void drawGuiContainerBackgroundLayer(float partialTicks, int mouseX, int mouseY) {
+    protected void drawGuiContainerBackgroundLayer(MatrixStack matrixStack, float partialTicks, int mouseX, int mouseY) {
 
     }
 }
