@@ -1,0 +1,74 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "noitawands:item/wand/wand0"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "noitawands:texture_id" : 0
+      },
+      "model": "noitawands:item/wand/wand0"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 1
+      },
+      "model": "noitawands:item/wand/wand1"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 2
+      },
+      "model": "noitawands:item/wand/wand2"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 3
+      },
+      "model": "noitawands:item/wand/wand3"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 4
+      },
+      "model": "noitawands:item/wand/wand4"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 5
+      },
+      "model": "noitawands:item/wand/wand5"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 6
+      },
+      "model": "noitawands:item/wand/wand6"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 7
+      },
+      "model": "noitawands:item/wand/wand7"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 8
+      },
+      "model": "noitawands:item/wand/wand8"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 9
+      },
+      "model": "noitawands:item/wand/wand9"
+    },
+    {
+      "predicate": {
+        "noitawands:texture_id" : 10
+      },
+      "model": "noitawands:item/wand/wand10"
+    }
+  ]
+}

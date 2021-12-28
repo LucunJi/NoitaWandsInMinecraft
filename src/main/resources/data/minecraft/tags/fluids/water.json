@@ -1,9 +1,9 @@
 {
   "replace": false,
   "values": [
-    "noitacraft:berserkium",
-    "noitacraft:flowing_berserkium",
-    "noitacraft:blood",
-    "noitacraft:flowing_blood"
+    "noitawands:berserkium",
+    "noitawands:flowing_berserkium",
+    "noitawands:blood",
+    "noitawands:flowing_blood"
   ]
 }

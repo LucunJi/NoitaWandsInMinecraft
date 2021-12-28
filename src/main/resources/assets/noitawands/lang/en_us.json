@@ -1,0 +1,46 @@
+{
+  "itemGroup.noitawands.wands": "Noita Craft: Wands",
+  "itemGroup.noitawands.spells": "Noita Craft: Spells",
+  "itemGroup.noitawands.flasks": "Noita Craft: Flasks",
+
+  "item.noitawands.wand.starting": "§bStarting Wand§r",
+
+  "_comment": "WAND PROPERTIES",
+  "item.noitawands.wand": "§bWand§r",
+  "desc.noitawands.wand.shuffle": "§6Shuffle: §r%s",
+  "desc.noitawands.wand.casts": "§6Casts: §r%d",
+  "desc.noitawands.wand.cast_delay": "§6Cast delay: §r%f",
+  "desc.noitawands.wand.recharge_time": "§6Recharge time: §r%f",
+  "desc.noitawands.wand.mana_max": "§6Mana max: §r%d",
+  "desc.noitawands.wand.mana_charge_speed": "§6Mana charge speed: §r%d",
+  "desc.noitawands.wand.capacity": "§6Capacity: §r%d",
+  "desc.noitawands.wand.spread": "§6Spread: §r%f",
+  "desc.noitawands.wand.uninitialized": "§cUninitialized§r",
+  "info.noitawands.wand.cooldown": "Wand is cooling down",
+
+  "_comment": "SPELLS",
+  "item.noitawands.spell_spark_bolt": "§bSpark Bolt§r",
+  "item.noitawands.spell_spark_bolt.detail": "§oA weak but enchanting sparkling projectile§r",
+  "item.noitawands.spell_spark_bolt_timer": "§bSpark Bolt With Timer§r",
+  "item.noitawands.spell_spark_bolt_timer.detail": "§oA spark bolt that casts another spell after a timer runs out§r",
+  "item.noitawands.spell_spark_bolt_trigger": "§bSpark Bolt With Trigger§r",
+  "item.noitawands.spell_spark_bolt_trigger.detail": "§oA spark bolt that casts another spell upon collision§r",
+  "item.noitawands.spell_spark_bolt_trigger_double": "§bSpark Bolt With Double Trigger§r",
+  "item.noitawands.spell_spark_bolt_trigger_double.detail": "§oA spark bolt that casts two new spells upon collision§r",
+  "item.noitawands.spell_bomb": "§bBomb§r",
+  "item.noitawands.spell_bomb.detail": "§oSummon a bomb that destroys ground very efficiently§r",
+  "item.noitawands.spell_energy_sphere": "§bEnergy Sphere§r",
+  "item.noitawands.spell_energy_sphere.detail": "§oA fast, arcing projectile§r",
+  "item.noitawands.spell_energy_sphere_timer": "§bEnergy Sphere With Timer§r",
+  "item.noitawands.spell_energy_sphere_timer.detail": "§oA fast, arcing projectile with a timer§r",
+
+  "_comment": "SPELL PROPERTIES",
+  "desc.noitawands.spell.mana_drain": "§6Mana drain: §r%d",
+  "desc.noitawands.spell.cast_delay": "§6Cast delay: §r+%f",
+  "desc.noitawands.spell.recharge_time": "§6Recharge time: §r+%f",
+  "desc.noitawands.spell.uses_remain": "§6Uses Remain: §r%d",
+
+  "_comment": "EFFECTS",
+  "effect.noitawands.berserk": "Berserk",
+  "effect.noitawands.blood": "Bloody"
+}
