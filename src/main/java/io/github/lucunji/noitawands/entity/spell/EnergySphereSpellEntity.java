@@ -1,6 +1,6 @@
 package io.github.lucunji.noitawands.entity.spell;
 
-import io.github.lucunji.noitawands.item.NoitaItems;
+import io.github.lucunji.noitawands.item.ModItems;
 import io.github.lucunji.noitawands.spell.ProjectileSpell;
 import io.github.lucunji.noitawands.util.MathHelper;
 import net.minecraft.entity.Entity;
@@ -82,7 +82,7 @@ public class EnergySphereSpellEntity extends SpellEntityMagicalBase {
     protected void generateParticles() {
         super.generateParticles();
         for (int i = 0; i < 5; i++) {
-            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_ENERGY_SPHERE)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0.3, 0);
+            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(ModItems.SPELL_ENERGY_SPHERE)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0.3, 0);
         }
     }
 }

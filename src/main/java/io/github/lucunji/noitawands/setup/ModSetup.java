@@ -1,7 +1,7 @@
 package io.github.lucunji.noitawands.setup;
 
 import io.github.lucunji.noitawands.NoitaWands;
-import io.github.lucunji.noitawands.item.NoitaItems;
+import io.github.lucunji.noitawands.item.ModItems;
 import io.github.lucunji.noitawands.item.wand.DefaultWands;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
@@ -24,7 +24,7 @@ public class ModSetup {
     public ItemGroup SPELL_GROUP = new ItemGroup(NoitaWands.MODID + ".spells") {
         @Override
         public ItemStack createIcon() {
-            return new ItemStack(NoitaItems.SPELL_ENERGY_SPHERE);
+            return new ItemStack(ModItems.SPELL_ENERGY_SPHERE);
         }
 
         @Override

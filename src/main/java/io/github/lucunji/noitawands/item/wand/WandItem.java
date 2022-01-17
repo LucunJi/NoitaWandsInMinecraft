@@ -5,7 +5,7 @@ import io.github.lucunji.noitawands.entity.spell.SpellEntityBase;
 import io.github.lucunji.noitawands.inventory.WandInventory;
 import io.github.lucunji.noitawands.inventory.container.WandContainer;
 import io.github.lucunji.noitawands.item.BaseItem;
-import io.github.lucunji.noitawands.item.NoitaItems;
+import io.github.lucunji.noitawands.item.ModItems;
 import io.github.lucunji.noitawands.spell.ISpellEnum;
 import io.github.lucunji.noitawands.spell.ProjectileSpell;
 import io.github.lucunji.noitawands.spell.cast.CastHelper;
@@ -18,14 +18,10 @@ import net.minecraft.entity.player.PlayerInventory;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.inventory.container.Container;
 import net.minecraft.inventory.container.INamedContainerProvider;
-import net.minecraft.item.IItemPropertyGetter;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
 import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.World;
@@ -51,13 +47,9 @@ import java.util.Random;
  * Most direct operations of NBT should be kept in {@link WandData} and {@link WandInventory}
  */
 public class WandItem extends BaseItem {
-    /** TODO: fix property registry {@link net.minecraft.item.ItemModelsProperties#registerProperty} */
     public WandItem(Properties properties) {
         super(properties.maxStackSize(1).group(NoitaWands.SETUP.WAND_GROUP));
-//        this.addPropertyOverride(new ResourceLocation(NoitaWands.MODID, "texture_id"), (itemStack, world, entity) -> new WandData(itemStack).getTextureID());
     }
-
-
 
     @Override
     public void fillItemGroup(ItemGroup group, NonNullList<ItemStack> items) {
@@ -91,7 +83,7 @@ public class WandItem extends BaseItem {
     public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
         ItemStack itemStack = playerIn.getHeldItem(handIn);
         if (!worldIn.isRemote() && playerIn instanceof ServerPlayerEntity) {
-            if (handIn == Hand.MAIN_HAND && itemStack.getItem().equals(NoitaItems.WAND)) {
+            if (handIn == Hand.MAIN_HAND && itemStack.getItem().equals(ModItems.WAND)) {
                 if (playerIn.isSneaking()) {
                     new WandData(itemStack);
                     NetworkHooks.openGui((ServerPlayerEntity) playerIn, new WandContainerProvider(itemStack), buffer -> buffer.writeItemStack(itemStack));

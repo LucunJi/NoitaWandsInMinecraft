@@ -10,7 +10,7 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.registries.ObjectHolder;
 
 @ObjectHolder(NoitaWands.MODID)
-public class NoitaItems {
+public class ModItems {
 
     @ObjectHolder("spell_spark_bolt") public static Item SPELL_SPARK_BOLT;
     @ObjectHolder("spell_spark_bolt_timer") public static Item SPELL_SPARK_BOLT_TIMER;

@@ -1,6 +1,6 @@
 package io.github.lucunji.noitawands.entity.spell;
 
-import io.github.lucunji.noitawands.item.NoitaItems;
+import io.github.lucunji.noitawands.item.ModItems;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.item.ItemStack;
@@ -34,7 +34,7 @@ public class SparkBoltDoubleTriggerSpellEntity extends SparkBoltSpellEntity {
             }
         }
         for (int i = 0; i < 5; i++) {
-            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(NoitaItems.SPELL_SPARK_BOLT_TRIGGER_DOUBLE)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0.3, 0);
+            this.world.addParticle(new ItemParticleData(ParticleTypes.ITEM, new ItemStack(ModItems.SPELL_SPARK_BOLT_TRIGGER_DOUBLE)), this.getPosXRandom(0.25D), this.getPosYRandom(), this.getPosZRandom(0.25D), 0, 0.3, 0);
         }
     }
 }
